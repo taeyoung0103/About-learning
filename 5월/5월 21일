@@ -1,0 +1,230 @@
+Comprehension (컴프리헨션)
+  - 리스트, 세트, 딕셔너리 내에서 실행 할 수 있는 한줄 for 문이다.
+  - 리스트 컴프리헨션, 세트 컴프리헨션, 딕셔너리 컴프리헨션 이라고 한다.
+  - 컴프리헨션 : 내장, 내포의 의미이다.
+  
+예1) 0~9까지 제곱하는 로직을 만들고자 한다.
+  datas = []
+  
+  for x in range(10) :              # x 값은 0부터 9까지의 값을 가지고 있다.
+    datas.append(x**2)              # x 값을 제곱한 값을 데이터에 집어넣는데, append이므로 차례차례 추가한다. 
+                                      즉, 0의 제곱부터 9의 제곱까지의 값 9개가 datas 안에 들어간다.
+  - datas를 실행하면 [0, 1, 4, 9, 16, 25, 36, 49, 64, 81] 이 출력된다.
+
+위의 예제를 한줄 for 문으로 변환시켜보도록 하자.
+  datas = [x**2 for x in range(10)]         # x**2, x제곱을 실행하는데, x의 범위는 0부터 9까지이다.
+  
+
+예2) 조건식이 추가된 예문
+  0~5 까지의 데이터 중 양수인 경우만 +2를 해서 list에 저장 및 출력.
+  
+  data2 = []
+  for x in range(6) :                  # x 값은 0부터 5까지의 값을 가지고있다.
+    if x%2 == 0 :                      # 만약 x 값을 2로 나눴을때 나머지가 0이라면
+      data2.append(x+2)                # data2에 값을 집어넣는데, 값을 +2 한다음에 집어넣는다.
+  
+  data2를 실행하면 [2, 4, 6] 이 실행된다.
+  
+  
+  위의 예2 문제를 comprehension 적용하여 한줄로 바꿔보자.
+  
+  data2 = [x+2 for x in range(6) if x%2 == 0]
+  
+예3) list에 튜플 생성해서 저장하는 로직
+  combs = []
+  for x in [1, 2, 3]:             # x 값은 1, 2, 3 이다.
+    for y in [3, 1, 4]:           # y 값은 3, 1, 4 이다.
+      if x != y:                  # x 값과 y 값이 다르다면
+        combs.append((x, y))      # (x, y) 형태로 만들어서 combs 리스트에 들어가며, 계속 추가된다.
+   
+   combs를 실행하면 [(1, 3), (1, 4), (2, 3), (2, 1), (2, 4), (3, 1), (3, 4)] 가 출력된다.
+   
+   
+   위의 예3 문제를 comprehension 적용하여 한줄로 바꿔보자.
+   
+   combs = [(x, y) for x in [1, 2, 3] for y in [3, 1, 4] if x != y]
+        
+
+
+
+
+예외처리 기본 syntax
+
+전원이 다운되는 심각한 문제는 불가 항력, 단 실행시 발생되는 소소한 에러는 처리후에 실행 유지를 위한 작업
+
+어떤 일이든 발생되는 경우의 수는 다양함
+
+가령 login 시도시 발생 가능한 경우의 수
+경우의 수 1 - 회원 미가입자가 착각해서 시도 : 회원 가입 해라!!!
+경우의 수 2 - id/pw 정상 따라서 로그인 성공 : 인증받은 상태로 로직 수행
+경우의 수 3 - id는 일치 단 pw가 다를 수도 있음 : pw 틀렸다는 메세지
+경우의 수 4 - id는 틀렸음, pw는 일치 : 재확인 하세요
+경우의 수 5 - id/pw 둘다 틀림 : 재확인 하세요 경우의 수 6 - 회원가입, id/pw도 다 일치 단 서버 시스템 오류 발생
+
+프로그램 개발 관점
+
+개발 방법 1
+
+경우의 수 1 - id/pw등이 일치 따라서 정상 인증 - if 조건식으로 검증 후 결과
+경우의 수 2 - 회원미가입, id/pw 등 정상 인증 불가 - 정상 실행은 맞으나 단 결과만 부정적인 결과일 뿐 - if 조건식으로 검증후 else 문으로 결과
+경우의 수 3 - 시스템이 맛이 감(전원다운..., 심각한 에러 ), 프로그램 코드에 이슈 있을수 있음(개발자가 코드 개선 - 정상실행 불가
+
+개발 방법 2
+로그인 로직으로만 간주 할 경우 인증 실패를 발생된 예외 상황으로 연출해서 예외 처리 문법으로 검증 로직 실행 처리
+
+
+발생되는 모든 예외 처리
+
+map() : 시퀀스의 모든 항목에 함수를 적용한 결과 리스트 반환
+
+print(type('a b'.split()))
+  실행시 <class 'list'>가 출력된다.
+  
+print('a b'.split())
+  실행시 ['a', 'b']가 출력된다.
+  
+
+에러
+print(10/0) 을 실행하면 'ZeroDivisionError'가 발생한다.
+이를 무시하고 진행하고 싶을경우 try와 except를 활용해야 한다.
+  
+  try:
+    print(1)
+    print(10/0)                # 오류 발생시에만 except 영역으로 이동
+                               #... 추가 코드들 실행시 예외 발생 
+except IndexError:             # IndexError 라는 오류 발생시
+    print("index 오류")         # "index 오류" 를 출력한다.
+except ZeroDivisionError:      # ZeroDivisionError 라는 오류 발생시
+    print('연산 오류')          # "연산오류" 를 출력한다.
+    
+print('혹여 이슈가 생겨도 난 정상 실행 즉 stop 아니야')
+
+
+
+다른 유형 함수에서의 try와 except활용
+
+map() 함수 사용 전 - index와 div_number 항목 모두 int()로 형변환
+split() 함수로 입력된 문자열을 list로 변환 후에 int로 형변환
+
+data = [10, 20, 30]
+
+  try:
+    index, div_number =  input('인덱스와 나눌 숫자를 입력하세요: ').split()
+    print('연산된 결과값 ', data[int(index)] / int(div_number))
+    
+  except IndexError:        
+    print('발생되는 모든 예외 처리')
+    
+  실행하면 '인덱스와 나눌 숫자를 입력하세요:' 문구가 나타나면서 숫자입력창이 나온다.
+  data가 여기서 총 3개이므로 첫번째 숫자는 0, 1, 2를 입력해야 try칸에서 실행된다.
+  예를들어 0, 2 를 입력할 경우 0번째 인덱스값인 10을 2로 나눈값인 5.0이 출력된다.
+  하지만 4, 2를 입력할 경우 4번째 인덱스값은 없으므로 IndexError가 발생해서 "발생되는 모든 예외 처리" 가 출력된다.
+  
+  
+예외의 에러 메세지 받아오기
+  
+data = [10, 20, 30]
+
+  try:
+    index, div_number = map(int, input('인덱스와 나눌 숫자를 입력하세요: ').split())
+     print('연산된 결과값 ', data[index] / div_number)
+    
+    
+    #ZeroDivisionError 라는 예외에 e라는 별칭 부여해서 코드상에서 e 변수명으로 사용 함을 의미하는 문법
+  except ZeroDivisionError as e: # e 는 발생된 예외 상황에 대한 메세지 확인 가능한 변수   
+    print('숫자를 0으로 나눌 수 없습니다.', e)
+    
+  except IndexError as e:           
+    print('입력하신 인덱스엔 데이터가 존재하지 않습니다', e) # ist index out of range
+    
+  
+  마찬가지로 이 문법에서도 [1, 2]과 같은 범위 내에 값을 선택하면 정상적으로 나누기가 실행된다.
+  그러나 [1, 0]을 입력하면 0으로 나누는것으로 ZeroDivisionError가 나오므로 '숫자를 0으로 나눌 수 없습니다.' 가 출력된다.
+  또한 범위내에 없는 값인 [4, 5]와 같은 값을 입력하면 IndexError가 나오므로 '입력하신 인덱스엔 데이터가 존재하지 않습니다' 가 출력된다.
+  
+  
+  
+예외가 발생하지 않았을때 실행할 코드 적용하기 : else
+  
+data = [10, 20, 30]
+
+  try:
+    # map(int, 입력)
+    # 입력되는 데이터를 split()으로 구분 후에 int로 변환해주는 코드
+    index, div_number = map(int, input('인덱스와 나눌 숫자를 입력하세요: ').split())
+      print('연산된 결과값 ', data[index] / div_number)
+    
+  except ZeroDivisionError as e:    
+    print('숫자를 0으로 나눌 수 없습니다.', e)
+    
+  except IndexError as e:           
+    print('입력하신 인덱스엔 데이터가 존재하지 않습니다', e)
+
+  else:
+    print("예외가 발생되지 않았을때만 실행되는 블록")
+    
+마찬가지로 try, except ZeroDivisionError, except IndexError 모두 해당되지 않는 경우 else구문이 실행되며, "예외가 발생되지 않았을때만 실행되는 블록"가 출력된다.
+
+
+
+예외와 무관하게 항상 실행되는 코드 : finally
+
+data = [10, 20, 30]
+
+  try:
+    index, div_number = map(int, input('인덱스와 나눌 숫자를 입력하세요: ').split())
+    print('연산된 결과값 ', data[index] / div_number)
+  except ZeroDivisionError as e:    
+    print('숫자를 0으로 나눌 수 없습니다.', e)
+    
+  except IndexError as e:           
+    print('입력하신 인덱스엔 데이터가 존재하지 않습니다', e)
+
+  else:
+    print("예외가 발생되지 않았을때만 실행되는 블록")
+        
+  finally:
+    print('100% 실행보장 - 로직 종료')
+   
+ finally는 모든 예외와 상관없이 실행되게 하는 코드이다.
+ 
+ 
+ 
+예외 발생시키기
+  5의 배수가 아닌 경우 직접 코드상에서 예외 발생 및 처리하는 로직을 만들어보자.
+  try:
+    x = int(input('5의 배수 입력 : '))
+    
+    if x % 5 !=0:
+        raise Exception('5의 배수가 아닙니다')  # 예외 발생 하는 코드
+        
+    print('5의 배수 ', x)
+    
+  except Exception as e:
+    print('5의 배수가 아닌 예외 발생')
+    
+   실행하면 '5의 배수 입력 : ' 구문과 함께 숫자입력창이 나타난다.
+   여기서 5의배수 숫자를 입력하면 '5의 배수' 가 출력된다.
+   반대로 5의배수 숫자를 입력하지 않으면 '5의 배수가 아닌 예외 발생' 가 출력된다.
+   
+   그러나 저 코드의 아쉬운점 3가지가 있는데 그 3가지는 다음과 같다.
+      1. 5 입력시 - 18미만 출입 불가
+      2. 20 입력시 - 출입가능 출력
+      3. ㅎ 입력시 - 미성년자 출입불가
+      
+  try:    
+    age = int(input("나이 입력 : "))  
+    
+    if(age<18): 
+      # print("18 미만 출입 불가")
+        raise ValueError
+    else:    
+      print('출입 가능')    
+    except ValueError:    
+      print('미성년자 출입 불가')   
+      
+  이렇게 작성하면 위의 3가지 아쉬운점도 모두 충족하게 된다.
+  
+  
+  
+  
