@@ -1,0 +1,226 @@
+class와 객체 지향 프로그램
+
+  class - 객체(데이터들을 하나의 단위로 관리하는 실제 사용 가능한 메모리상의 영역)를 사용 가능하게 해 주는 설계도(붕어빵과 비교시 붕어빵 - 객체, 붕어빵틀 - class)
+  객체(object) - 메모리에 사용 가능하게 생성된 데이터 집합
+
+  객체 지향 프로그램 방식의 주 목적
+    클래스 하나 제대로 설계 후에 데이터 표현을 위한 재사용을 위함
+    아파트 건축 설계도(class)/개발한 아파트(object=instance)
+
+
+class구문을 하나 만들어보자.
+  
+  class Person:
+    
+    # 특별한 메소드 - 생성자(객체 생성시에 호출되는 기능)
+    def __init__(self, name, age):
+        # name이란 멤버 변수 생성 및 값 할당
+        # self.name : Person 클래스의 멤버 변수
+        # name : __init__ 이라는 특별한 메소드 내에서만 사용 가능한 로컬 변수
+        self.name = name
+        self.age = age
+        
+   person이라는 class를 생성했으며, 여기에 각 값의 name과 age가 들어간 값들을 넣을수 있다.
+   
+   예를 들어 p1 = person("Lee", 36)을 만들면, 이는 person이라는 객체를 생성하고, person instance를 생성한 것이다.
+   
+   print(p1.name) 을 실행하면 p1의 name값을 출력하라는 의미이므로 Lee가 출력된다.
+   
+   
+
+파이썬 클래스
+  멤버 변수의 종류
+    - 클래스 변수 : 객체를 통틀어서 하나만 생성되고 모든 객체가 공유하는 변수
+    - 인스턴스 변수 : 생성되는 객체 즉 인스턴스별로 별도로 생성되는 변수
+    
+    - 주요 키워드 : self가 적용된 변수는 모두 다 instance 변수
+    - 접근자 : 정보 은닉 및 유효성 검증을 위해 private으로 정의하는 방법 - 변수명 앞단에 __ 선언
+    
+    
+  특수 메소드
+    - static 변수 - static 키워드로 선언 : 객체 생성없이 사용 가능
+    - instance 변수 - non-static 으로 선언 : 객체 생성 필수(instance)
+    - python에선 public(무) 또는 private (__)로 표기
+
+
+  용어 
+    - 메소드 : 클래스 내부에 구현되는 기능
+    - 함수 : 클래스와 독립적으로 구현되는 기능
+    
+파이썬 클래스 개발 문법
+  class 키워드
+    - 생성자 : init(self)
+    - 클래스 내에 구현하는 함수의 첫번째 parameter : self
+    - 멤버 변수 선언 문법 : init() 내부에 self.변수명
+
+  예시)
+    class Bank:
+    # class 변수 / Bank.bank_name 호출
+    # 생성되는 모든 객체가 공유하게 되는 변수
+      bank_name = '플레이데이터 은행'
+    
+    # 지점 위치, 지점별 공유해서는 안되는 데이터의 변수
+      def __init__(self, loc):
+        self.loc = loc
+       
+    # loc 멤버 변수값만 초기화
+    # 메모리에 Bank 공간에 두개의 데이터가 저장되어 있는 상태 - 플레이데이터 은행, 마포
+
+    b1 = Bank('마포')
+
+    # 메모리
+    print(b1.bank_name, '의 지점 위치 - ', b1.loc)
+    print(Bank.bank_name, '의 지점 위치 - ', b1.loc)
+   -> 둘다 출력값은 '플레이데이터 은행 의 지점 위치 -  마포' 이다.
+   
+   그러나 print(Bank.loc)는 불가능하다.
+
+
+
+인스턴스 및 클래스 변수
+  독립된 함수 개발 및 호출, 클래스 내부에 구현하는 내장 함수
+  
+  예2)
+  class UserClass:
+    
+    # 생성자
+    def __init__(self, data):
+      #instance 변수 선언
+      self.instanceVar = data     
+      print("생성자")
+    
+    def getInstanceVar(self):
+      return self.instanceVar
+        
+        
+  def getInstanceVar2():
+    return "클래스 외부에 구현된 별도의 함수"
+    
+  이렇게 작성하고 아래의 값을 입력해보자.
+    
+  d = UserClass('생성자로 유입되는 데이터들')
+  data1 = d.getInstanceVar()                  # 생성자
+  data1                                       # UserClass안에 입력한 값인 '생성자로 유입되는 데이터들'이 출력된다.
+  
+  data2 = getInstanceVar2()
+  data2                                       # 이 경우 위 함수 def getInstanceVar2(): 의 return 값이 "클래스 외부에 구현된 별도의 함수" 이므로
+                                                "클래스 외부에 구현된 별도의 함수" 가 출력된다.
+  
+  마지막으로
+  i1 = UserClass('변수')
+  data = i1.getInstanceVar()                  #
+  print(data)                                 # data를 출력하는데, data는 i1.getInstanceVar() 이고, 
+                                                위에 함수 def getInstanceVar(self): return self.instanceVar 이므로'변수'가 출력된다.
+   
+   
+
+class 변수
+  class 변수란? class 내에 선언되는 변수이나 생성되는 모든 객체가 공유   
+  
+  예)
+  class people:               # people이라는 class를 만들었다.
+    gender = '성별' 
+  
+  print(people.gender)        # 출력시 '성별'이 출력된다.
+  
+  
+  
+  
+private 변수  
+  개념 : 외부에서 호출 불가인 변수로 선언하는 방식
+
+  필요성 : 나이가 1살 이상이어야 할 경우 처럼 유효성 로직 실행이 필수인 경우.
+
+  문법 : 언더바 두개로 선언
+    언더바 표기는 직접 호출을 비추하는 구조
+  
+  권장사항 : 변수가 private인 경우 set/getXxx메소드 추가 구현 권장
+  단, setXxx() 는 유효성 검증 코드 포함
+  
+  
+  예)
+  class People2:
+    def __init__(self, name="이이", age=0):
+        self.name = name
+        self.__age = age                      # 외부에서 절대 값 수정을 위해 호출하지 마세요 라는 의미의 표현 : private 변수
+  
+  p6 = People2()
+  print(p6.name)            # '이이'가 출력된다.
+  print(p6.age)             # 에러가 나면서 출력이 안된다.
+  
+  __age 변수값 수정 및 활용 가능한 메소드 추가 구현
+  
+  class People2:
+    def __init__(self, name="이이", age=0):
+        self.name = name
+        self.__age = age
+        
+    def setAge(self, new_age):                    # set을 활용해서 __age 값을 변환할 수 있도록 했다.
+        self.__age = new_age
+        
+    def getAge(self):                             # get을 활용해서 __age 값을 출력할 수 있도록 햇다.
+        return self.__age
+        
+    
+    p6 = People2()
+    print(p6.name)                        # 똑같이 '이이'가 출력된다
+    p6.setAge(10)                         # set을 통해 age값을 0에서 10으로 변환했다.
+    print(p6.getAge())                    # get을 통해 변환된 age값 10이 출력된다.
+        
+  
+  
+생성자와 소멸자
+  객체 생성시 및 메모리에서 객체 삭제시 실행하고자 하는 로직이 있을 경우의 개발 방법
+
+    _init_() : 생성자(constructor)는 객체가 생성될 때 객체를 기본값으로 초기화
+        파이썬에서는 생성자의 이름으로 init() 사용
+        객체 생성시 호출(class 이름으로 호출)
+    _del_() : 객체가 삭제시 자동 호출되는 함수
+        del 참조변수명 시에 자동 호출
+  
+
+
+특수 메소드
+    _init_ : 생성자
+    _str_ : 자바의 toString과 흡사, print() 자동 호출
+    _len_ : 길이 반환로직으로 재정의 권장
+
+  예)
+  class Book:
+    
+    # 생성자, Book( 값1, ) 호출시 자동 호출
+    def __init__(self, title, author, pages):
+        self.title = title
+        self.author = author
+        self.pages = pages
+        
+    # 참조 변수값을 출력시에 자동 호출되는 특별한 메소드
+    def __str__(self):
+        return '제목:%s, 저자:%s, 페이지:%s' % (self.title, self.author, self.pages)
+        
+    
+    # 제공받지 않은 새로운 이름의 메소드로 구현시 구현문법만 OK
+    # ler(참조변수) 호출 문법 오류
+    def __len__(self):
+        return self.pages
+  #이렇게 함수를 만들고  
+        
+book = Book("Data Structure", "bookMan", 200)                 # book이라는 객체를 만드는데, 정보 3개는 괄호안에와 같다.
+print(book)                                                   # 제목:Data Structure, 저자:bookMan, 페이지:200  가 출력된다. 
+print(len(book))                                              # 함수  def __len__(self):  return self.pages 가 설정되어 있으므로, page값인 200이 출력된다.
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+
+
