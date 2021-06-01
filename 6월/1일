@@ -1,0 +1,272 @@
+/* group by절
+- 특정 컬럼값을 기준으로 그룹화
+	가령, 10번 부서끼리, 20번 부서끼리..
+*/
+-- 부서별 커미션 받는 사원수 
+
+select deptno, count(comm)
+from emp
+group by deptno
+order by deptno;
+
+결과
+
+    DEPTNO COUNT(COMM)
+---------- -----------
+        10           0
+        20           0
+        30           4
+        
+        
+        
+--? 부서별(group by deptno) (월급여) 평균 구함(avg())(그룹함수 사용시 부서 번호별로 그룹화 작업후 평균 연산)
+
+select avg(sal), deptno
+from emp
+group by deptno
+order by deptno;
+
+  AVG(SAL)     DEPTNO
+---------- ----------
+2916.66667         10
+2258.33333         20
+1566.66667         30        
+        
+
+
+-- *** having절 *** [ 조건을 주고 검색하기 ]
+-- 그룹함수 사용시 조건문
+
+-- 부서별(deptno) 평균 급여(avg())가 2000 이상(>=)부서의 번호와 평균 급여 검색 
+
+select deptno, count(*), count(comm), avg(sal)
+from emp
+group by deptno
+having avg(sal) >= 2000;
+
+    DEPTNO   COUNT(*) COUNT(COMM)   AVG(SAL)
+---------- ---------- ----------- ----------
+        20          3           0 2258.33333
+        10          3           0 2916.66667
+                
+-- 실행순서 : from -> group by -> having -> select
+
+
+-- 부서별 급여중 최대값(max)과 최소값(min)을 구하되 최대 급여가 2900이상(having)인 부서만 출력
+
+select max(sal), min(sal), deptno
+from emp
+group by deptno
+having max(sal) >=2900;
+
+  MAX(SAL)   MIN(SAL)     DEPTNO
+---------- ---------- ----------
+      3000        800         20
+      5000       1300         10
+      
+      
+
+
+join.sql
+
+/*
+1. 조인이란?
+	다수의 table간에  공통된 데이터를 기준으로 검색하는 명령어
+
+	다수의 table이란?
+		동일한 table을 논리적으로 다수의 table로 간주
+			- self join
+
+		물리적으로 다른 table간의 조인
+
+2. 사용 table 
+	1. emp & dept(부서정보)
+	  : deptno 컬럼을 기준으로 연관되어 있음
+
+	 2. emp & salgrade(급여 등급 정보 보유)
+	  : sal 컬럼을 기준으로 연관되어 있음
+
+  
+3. table에 별칭 사용 
+	검색시 다중 table의 컬럼명이 다를 경우 table별칭 사용 불필요, 
+
+	서로 다른 table간의 컬럼명이 중복된 경우 컬럼 구분을 위해 오라클 엔진에게 정확한 table 소속명을 알려줘야 함
+	- table명 또는 table별칭
+	- 주의사항 : 컬럼별칭 as[옵션], table별칭 as 사용 불가
+
+
+4. 조인 종류 
+	1. 동등 조인
+		 = 동등비교 연산자 사용
+		 : 사용 빈도 가장 높음
+		 : 테이블에서 같은 조건이 존재할 경우의 값 검색 
+
+	2. not-equi 조인
+		: 100% 일치하지 않고 특정 범위내의 데이터 조인시에 사용
+		: between ~ and(비교 연산자)
+
+	3. self 조인 
+		: 동일 테이블 내에서 진행되는 조인
+		: 동일 테이블 내에서 상이한 칼럼 참조
+			emp의 empno[사번]과 mgr[사번] 관계
+
+	4. outer 조인 
+		: 두개 이상의 테이블이 조인될때 특정 데이터가 모든 테이블에 존재하지 않고 컬럼은 존재하나 null값을 보유한 경우
+		  검색되지 않는 문제를 해결하기 위해 사용되는 조인
+		  null 값이기 때문에 배제된 행을 결과에 포함 할 수 있드며 (+) 기호를 조인 조건에서 정보가 부족한 컬럼쪽에 적용
+		
+		: oracle DB의 sql인 경우 데이터가 null 쪽 table 에 + 기호 표기 */
+
+
+--*** 1. 동등 조인 ***
+-- = 동등 비교
+-- 2. SMITH 의 이름(ename), 사번(empno), 근무지역(부서위치)(loc) 정보를 검색
+select ename, empno, loc
+from emp, dept
+where ename='SMITH';
+
+-- ORA-00918: column ambiguously defined
+-- dpetno는 두개의 table에 존재 따라서 어떤 table의 어떤 컬럼 검색이 불명확
+-- select ename, empno, loc, deptno
+-- from emp, dept
+-- where ename='SMITH';
+
+-- 문제 발생? 검색된 결과값을 육안으로 확인 후에 20번 부서에 매핑된 dept의 정보 탐색
+select ename, empno, loc, emp.deptno, dept.deptno
+from emp, dept
+where ename='SMITH';
+
+
+-- 3. deptno가 동일한 모든 데이터(*) 검색
+-- emp & dept의 모든 데이터가 각 row수별 곱셈연산 처럼 결과가 output
+select * from emp, dept;
+
+
+-- 4. 2+3 번 항목 결합해서 SMITH에 대한 모든 정보 검색하기
+select ename, empno, loc
+from emp, dept
+where ename='SMITH' and emp.deptno = dept.deptno;
+
+
+-- 5. ?SMITH에 대한 이름(ename)과 부서번호(deptno), 부서명(dept의 dname) 검색하기
+-- table에 별칭 부여 방식
+select ename, e.deptno, dname
+from emp e, dept d
+where ename='SMITH' and e.deptno = d.deptno;
+
+
+
+-- 6. ? 조인을 사용해서 뉴욕에 근무하는 사원의 이름과 급여를 검색 
+-- loc='NEW YORK', ename, sal
+select loc from dept;
+
+-- 데이터가 몇천건이라 가정
+/* loc가 NEW YORK인 데이터의 emp deptno 와 dept의 deptno 비교 */
+-- 좀더 선호하는 형식
+select ename, sal 
+from emp, dept
+where loc='NEW YORK' and emp.deptno=dept.deptno;
+
+
+/*emp deptno 와 dept의 deptno 동등비교 후에 동등한 모든 데이터들중에
+ loc가 NEW YORK인 데이터 비교 */
+select ename, sal 
+from emp, dept
+where emp.deptno=dept.deptno and loc='NEW YORK';
+
+
+
+-- 7. 조인 사용해서 ACCOUNTING 부서(dept dname)에 
+-- 소속된 사원(emp)의 이름(emp ename)과 입사일(emp hiredatea) 검색
+select ename, hiredate
+from emp, dept
+where dname='ACCOUNTING' and dept.deptno=emp.deptno;
+
+
+
+-- ? 8. 직급이 MANAGER인 사원의 이름, 부서명 검색
+select ename, dname
+from emp, dept
+where job = 'MANAGER' and emp.deptno = dept.deptno;
+
+
+-- *** 2. not-equi 조인 ***
+
+-- salgrade table(급여 등급 관련 table)
+-- 9. 사원의 급여(sal -> grade)가 몇 등급인지 검색
+-- between ~ and : 포함 
+select ename, sal, grade
+from emp, salgrade
+where sal between losal and hisal;
+
+
+-- 10. ? 사원(emp) 테이블의 부서 번호(deptno)로 
+-- 부서 테이블을 참조하여 사원명, 부서번호, 부서의 이름(dname) 검색
+-- 동등조인 문제 
+select ename, emp.deptno, dname
+from emp, dept
+where emp.deptno = dept.deptno;
+
+
+
+-- *** 3. self 조인 : 하나의 table에 연관된 컬럼들로 다수의 table인듯 논리적으로 작업 ***
+-- 11. SMITH 직원(사원)의 메니저(SMITH 관점에선 상사) 이름 검색
+-- 사원 table 의 별칭 : e / 메니저 table의 별칭 : m
+
+select m.ename 
+from emp e, emp m
+where e.ename='SMITH' and e.mgr=m.empno;
+
+
+
+-- 12. 메니저 이름이 KING(m ename='KING')인 사원들의 이름(e ename)과 직무(e job) 검색
+select e.ename, e.job
+from emp e, emp M
+where m.ename = 'KING' and e.mgr=m.empno;
+
+
+
+-- 13. SMITH와 동일한 근무지에서 근무하는 사원의 이름 검색
+
+select you.ename
+from emp my, emp you
+where my.ename = 'SMITH' and my.deptno = you.deptno;
+
+--------------- SMITH 를 검색에서 제외
+select you.ename
+from emp my, emp you
+where my.ename = 'SMITH' 
+	and my.deptno = you.deptno
+	and you.ename != 'SMITH';
+
+
+
+--*** 4. outer join ***
+-- dept의 deptno에 40번 부서 존재, emp에는 40번 부서에 소속된 직원 없음
+-- emp의 KING은 mgr(매니저)가 없음. =(null)
+
+
+-- 14. 모든 사원명, 메니저 명 검색, 단 메니저가 없는 사원도 검색되어야 함
+-- + 기호를 적용한 쪽이 데이터가 없는 쪽
+select e.ename 사원명, m.ename 메니저명
+from emp e, emp m
+where e.mgr=m.empno(+);
+
+/*
+사원명               메니저명
+-------------------- --------------------
+FORD                 JONES
+JAMES                BLAKE
+TURNER               BLAKE
+MARTIN               BLAKE
+WARD                 BLAKE
+ALLEN                BLAKE
+MILLER               CLARK
+CLARK                KING
+BLAKE                KING
+JONES                KING
+SMITH                FORD
+KING
+*/
+
+
