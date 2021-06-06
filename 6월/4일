@@ -1,0 +1,462 @@
+sequence.sql
+/*
+1. 시퀀스 
+	: 순차적인 순서 번호를 자동으로 반영할수 있는 매우 유용한 기술
+	: 기본은 1씩 자동 증가
+		- 증가치(1씩 증가가 기본), 최대값 추가 설정도 가능
+		- 권장 : 하나의 시퀀스를 다수의 table에서 사용 비추
+
+2. 대표적인 활용 영역
+	- 게시물 글번호에 주로 사용
+	- 고객 등록시에 1씩 자동 증가해서 고객 관리 
+
+3. sequence 기능
+	- 일정 숫자만큼 자동 생성되는 특성
+	- 속성
+		nextval : insert문장에서 사용 / 1씩 자동증가해서 insert 
+		currval : 현 시점에서의 sequence 값을 알고자 할때 확인용 속성
+			select 시퀀스이름.currval from dual;
+
+*/	
+
+-- 어떤 table의 어떤 컬럼에 sequence 적용 할 것인지에 대한 설계가 명확한 상태	     
+
+--1. sequence 생성 명령어
+
+create sequence seq_test_no1;
+
+drop table test;
+create table test(
+	no1 number(3)
+);
+
+--2. seq~를 활용한 insert
+-- test table의 no1은 실제 개발자들이 1, 2, 3 등의 데이터를 직접 insert하지 않음
+   
+insert into test values(seq_test_no1.nextval);      -- 1씩 증가
+insert into test values(seq_test_no1.nextval);
+insert into test values(seq_test_no1.nextval);
+insert into test values(seq_test_no1.nextval);
+insert into test values(seq_test_no1.nextval);
+insert into test values(seq_test_no1.nextval);
+
+select * from test;
+
+       NO1
+----------
+         1
+         2
+         3
+         4
+         5
+         6
+
+
+-- 해당 시퀀스 현재 값 검색
+select seq_test_no1.currval from dual;
+
+   CURRVAL
+----------
+         6
+
+
+--3. 다수의 table에서 하나의 seq를 공동 사용시: sequence는 공유가 된다
+-- 따라서 table당 고유한 sequence 값 즉 1씩 증가치를 보장해야 할 경우엔 공유 금지 
+
+create table test3(
+	no1 number(3)
+);
+
+insert into test3 values(seq_test_no1.nextval);
+insert into test values(seq_test_no1.nextval);
+insert into test3 values(seq_test_no1.nextval);
+
+select * from test;
+
+       NO1
+----------
+         1
+         2
+         3
+         4
+         5
+         6
+         8
+
+
+select * from test3;
+
+       NO1
+----------
+         7
+         9
+
+-> test3과 test를 번갈아가면서 insert했기 때문에 7과 9가 따로 test3에 출력되었다.
+
+
+--4. 시작 index 지정 및 증가치도 지정하는 seq 생성 명령어
+-- 1씩 자동증가치가 아닌 10으로 시작해서 2씩 자동 증가 단 최대 20까지만 시퀀스 사용 의미 
+-- 속성이 생략될 경우 1씩 자동 증가가 default
+
+drop sequence seq_test_no1;
+create sequence seq_test_no1
+start with 10
+increment by 2
+maxvalue 20;
+
+
+--5. 현 sequence의 데이터값 검색하기
+select seq_test_no1.currval from dual;
+
+
+--6. seq 삭제 명령어
+drop sequence seq_test_no1;
+
+
+------------------------------------------------------
+
+index.sql
+/*
+1. db의 빠른 검색을 위한 색인 기능의 index 학습
+	- primary key(not null/unique)는 기본적으로 자동 index로 설정됨 
+	
+	- DB 자체적으로 빠른 검색 기능 부여
+		이 빠른 검색 기능 - index
+	- 어설프게 사용자 정의 index 설정시 오히려 검색 속도 다운
+	- 데이터 셋의 15% 이상의 데이터들이 잦은 변경이 이뤄질 경우 index 설정 비추
+
+2. 실행 속도 체크를 위한 옵션 명령어
+	set timing on
+	set timing off
+
+3. sql명령문의 검색 처리 속도 향상을 위한 oracle db 자체의 객체
+
+
+4. 주의사항
+	- index가 반영된 컬럼 데이터가 수시로 변경되는 데이터라면 index 적용은 오히려 부작용
+*/
+
+--1. index용 검색 속도 확일을 위한 table 생성
+drop table emp01;
+create table emp01 as select * from emp;   -- index 적용해서 실행속도 확인을 위해 몇십번 몇백번 수행했다 가정
+
+
+--2. 테스트를 위한 데이터값을 복사 붙여넣기
+insert into emp01 select * from emp01;
+select count(*) from emp01;
+
+select * from emp01 where ename='SMITH';
+select * from emp01 where empno=7369;
+
+--3. emp01 table에 없던 index(색인) 기능 적용하는 문법
+create index idx_emp01_empno on emp01(empno);
+
+
+--4. SMITH 사번 검색 시간 체크  
+select * from emp01 where empno=7369;
+select * from emp01 where ename='SMITH';
+
+--5. index 삭제 명령어
+drop index idx_emp01_empno;
+
+drop table emp01;
+
+
+-------------------------------------------
+
+PLSqlSyntaxBasic.sql
+/* 
+* 프로시저 & 함수
+- 재사용을 위한 기능 구현
+1. 프로시저
+	- 호출 방법이 함수와 차이가 있음
+2. 함수
+	- oracle 함수 호출하듯 사용자 정의 함수 호출 가능
+
+------
+1. oracle db만의 프로그래밍 개발 방법
+	1. 이름 없이 단순 개발
+	2. 프로스저라는 타이틀로 개발 - 이름 부여(재사용)
+	3. 함수라는 타이틀로 개발 - 이름 부여(재사용)
+
+2. 장점
+	- 단 한번의 실행 만으로 내장 함수처럼 만들어서 필요시 호출해서 실행 가능
+	- 프로시저와 함수로 구현시 db내부에 pcode로 변환
+
+3. test를 위한 필수 셋팅 
+	- set serveroutput on 
+	
+4. 필수 암기 
+	1. 할당(대입) 연산자  :=
+	2. 선언, 시작, 끝
+		declare 
+			변수선언
+		begin 
+			로직 처리
+		end; 
+		/     -> /로 마무리해야한다. ;도 필요
+*/
+
+--1. 실행 결과 확인을 위한 필수 설정 명령어
+set serveroutput on -- (중요하다)
+
+--2. 연산을 통한 간단한 문법 습득
+declare
+	no integer;														-- 변수선언
+begin																-- 로직 처리
+	no := 10;				-- 10값을 no변수에 할당(대입, 초기화)
+	dbms_output.put_line('결과 ' || no);		-- pl sql 출력 함수, || : 결합연산자
+				-- dbms_output.put_line : python의 print와 같은역할을 한다.
+	no := 10 / 5;			-- 10 나누기 5인 결과값을 no변수에 할당(대입, 초기화)
+	dbms_output.put_line('결과 ' || no);
+end;																-- 끝
+/																	-- 진정 끝
+
+-- no : 정수값만 입력해야됨을 말함.
+
+
+--? 이름값을 출력할 수 있는 프로시저를 구현
+-- 전제조건 : name변수 선언해서 활용(varchar2)
+
+declare 
+	name varchar2(10);
+begin
+	name := 'park';
+	dbms_output.put_line(name);
+end;
+/
+
+
+--3. 연산을 통한 간단한 문법 습득 + 예외 처리 문장
+-- 혹여 문제가 생겨도 프로그램 종료가 아니라 유연하게 실행 유지
+
+-- 예외처리시 실행 유지
+-- 예외 미처리시 실행 강제 종료
+
+--문제발생
+-- 1단계 : 문제발생해서 중지 확인하는 문제 코드
+declare
+	no integer;														-- 변수선언
+begin																-- 로직 처리
+	no := 10 / 0;				
+	dbms_output.put_line('결과 ' || no);		-- pl sql 출력 함수, || : 결합연산자
+				-- dbms_output.put_line : python의 print와 같은역할을 한다.
+	no := 10 / 5;			
+	dbms_output.put_line('결과 ' || no);
+end;																-- 끝
+/
+
+-- 2단계 : 프로그램 중지를 방지하기 위한 해결책 : exception 즉 예외처리
+
+declare
+	no integer;													-- 변수선언
+begin
+	dbms_output.put_line('결과 ' || no);						-- 로직 처리
+	no := 10 / 0;
+
+	exception
+		when others then
+			dbms_output.put_line('예외발생');
+
+	dbms_output.put_line('결과 ' || no);		-- pl sql 출력 함수, || : 결합연산자
+				-- dbms_output.put_line : python의 print와 같은역할을 한다.
+end;																-- 끝
+/
+
+
+
+--4. 중첩 block & 변수 선언 위치에 따른 구분
+-- step01 - 전역, 로컬 변수 선언 및 활용
+
+declare
+	v_global varchar2(10) := 'g';			-- 변수선언
+begin
+	dbms_output.put_line(v_global);			-- 변수활용
+
+	declare
+		v_local varchar2(10) := 'l';		-- 변수선언
+
+	begin
+		dbms_output.put_line(v_global);		-- 변수 활용
+		dbms_output.put_line(v_local);		-- 변수 활용
+	end;
+	dbms_output.put_line(v_global);			-- 변수 활용
+	-- dbms_output.put_line(v_local);		--중첩 부분 외에서 v_local이 선언되는것이므로, 이걸 입력하면 에러가 나온다.
+end;
+/
+
+
+
+--5. emp01 table의 컬럼 타입을 그대로 사용하고 싶다면?
+	-- %type : db의 특정 컬럼의 타입 의미
+drop table emp01;
+create table emp01 as select * from emp;
+
+-- 사번으로 검색하는 프로시저 개발 
+-- 사번으로 이름 검색해서 출력
+-- select ename from emp01 where empno=7369;
+
+declare
+	v_enpno emp01.empno%type; 			--%type = 그대로 복사한다는 의미이다.
+	v_ename emp01.ename%type;
+begin
+	select ename
+		into v_ename
+	from emp01
+	where empno=7369;
+
+	dbms_output.put_line(v_ename);		-- 출력하는 함수, v_ename을 출력한다.
+end;
+/
+
+
+declare
+	v_enpno emp01.empno%type; 			--%type = 그대로 복사한다는 의미이다.
+	v_ename emp01.ename%type;
+begin
+	select ename
+		into v_ename, v_empno
+	from emp01
+	where empno=7369;
+
+	dbms_output.put_line(v_ename || ' ' || v_empno);		-- 출력하는 함수, v_ename을 출력한다.
+end;
+/
+
+--6. 이미 존재하는 table의 record의 모든 컬럼 타입 활용 키워드 : %rowtype
+/* 7369 사번으로 해당 사원의 모든 정보를 검색해서 사번, 이름만 착출해서 출력 */
+
+declare
+	v_rows emp01%rowtype;
+begin
+	select *
+		into v_rows
+	from emp
+	where empno=7369;	
+
+	dbms_output.put_line(v_rows.ename);
+end;
+/
+
+----- 위와 아래의 차이점? 위는 안되고 아래는 실행됨
+
+declare
+	v_rows emp01%rowtype;
+begin
+	select *
+		into v_rows
+	from emp01
+	where empno=7369;
+
+	dbms_output.put_line(v_rows.ename);
+end;
+/
+
+
+--7. ???
+-- emp05라는 table을 데이터 없이 emp table로 부터 생성하기
+-- %rowtype을 사용하셔서 emp의 사번이 7369인 사원 정보 검색해서 
+-- emp05 table에 insert
+-- 힌트 : begin 부분엔 다수의 sql문장 작성 가능, into 절
+drop table emp05;
+create table emp05 as select * from emp where 1=0;
+
+declare
+	v_row emp05%rowtype;
+begin
+	select *
+		into v_row
+	from emp
+	where empno=7369;
+
+	insert into emp05 values v_row;
+end;
+/
+
+select * from emp05;
+
+
+--8. 조건식
+/*  1. 단일 조건식
+	if(조건) then
+		
+	end if;
+	
+   2. 다중 조건
+	if(조건1) then
+		조건1이 true인 경우 실행되는 블록 
+	elsif(조건2) then
+		조건2가 true인 경우 실행되는 블록
+	end if; 
+*/
+-- 사원의 연봉을 계산해서 합을 구하는 procedure 개발[comm이 null인 
+-- 직원들은 0으로 치환]
+
+declare
+	v_emp emp%rowtype;
+	total_sal number(7, 2);
+begin
+	select empno, ename, sal, comm
+		into v_emp.empno, v_emp.ename, v_emp.sal, v_emp.comm
+	from emp
+	where ename='SMITH';
+
+	if (v_emp.comm is null) then 
+		v_emp.comm := 0;				-- comm이 없으면, 0으로 대입해서 계산
+	end if;
+
+	total_sal := v_emp.sal*12 + v_emp.comm;
+	dbms_output.put_line(total_sal);
+end;
+/
+
+
+
+select empno, ename, sal, comm 
+	from emp 
+	where ename='SMITH';
+
+
+-- 존재하는 table의 특정 컬럼 타입 하나 의미하는 표현식 : %type
+-- "				"모든 컬럼"						" : %rowtype
+
+
+-- 10.??? 실행시 가변적인 데이터 적용해 보기
+-- 실행시마다 가변적인 데이터(동적 데이터) 반영하는 문법 : 변수 선언시 "&변수명"
+
+-- emp table의 deptno=10 : ACCOUNT 출력, 
+-- deptno=20 이라면 RESEARCH 출력
+-- test data는 emp table의 각 사원의 사번(empno)
+
+-- 차후에는 이 프로시저에 이름 적용
+-- 이름이 있다는 것은 필요시에 호출해서 재사용성을 고려한 구조
+-- 현 시점 실습은 이름 부여없이 기본만 학습
+
+--(v변수명은 다른 변수명 가능)
+
+declare
+	ck_empno emp.empno%type := &v; 
+	v_empno emp.empno%type;
+	v_deptno emp.deptno%type;
+	v_dname varchar2(10);
+begin
+	select empno, deptno
+		into v_empno, v_deptno
+	from emp
+	where empno=ck_empno;
+
+	if (v_deptno=10) then	
+		dbms_output.put_line('ACCOUNT');
+	elsif (v_deptno=20) then	
+		dbms_output.put_line('RESEARCH');
+	else
+		dbms_output.put_line('None');
+	end if;
+end;
+/
+
+
+
+
+
+
