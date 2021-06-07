@@ -1,0 +1,23 @@
+DALLAS에서 근무하는 사원들의 연봉이 50%인상되었다. 인상이 반영된 채로 전체 사원들중 연봉이 1500이상인 직원들을 연봉순으로 나열하라.
+(임의로 새 테이블을 만들어서 작성하고, rownum을 사용하여라.)
+
+
+create table emp001 as select * from emp;
+update emp001 set sal=sal*1.5 where deptno=(select deptno from dept where loc='DALLAS');
+select rownum, ename, sal
+from (select rownum, ename, sal
+    from emp001 order by sal desc)
+where sal >=1500;
+
+
+    ROWNUM ENAME                       SAL
+---------- -------------------- ----------
+         1 KING                       5000
+         2 FORD                       4500
+         3 JONES                    4462.5
+         4 BLAKE                      2850
+         5 CLARK                      2450
+         6 ALLEN                      1600
+         7 TURNER                     1500
+         
+         
