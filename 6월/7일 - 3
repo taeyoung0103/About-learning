@@ -1,0 +1,285 @@
+--16.PLSqlFunction.sql
+/*
+함수 개발의 필요성
+	- 잘 만들어서 무수히 재사용을 하겠다는 의미
+	- 기업 관점 : 개발 단축, 비용 절감, 활용을 쉽게 해 줄 수 있게 해 주는 기술
+	
+
+1. 저장 함수(function)
+	- 오라클 사용자 정의 함수 
+	- 오라클 함수 종류
+		- 지원함수(count(??){ }, avg()...) + 사용자 정의 함수
+
+2. 주의사항
+	- 절대 기존 함수명들과 중복 불가
+
+3. 프로시저와 다른 문법(함수 문법)
+	- plsql에서의 함수는 반드시 리턴값 있음 
+	- 리턴 타입 선언 + 리턴 값
+
+4. oracle db 자체내에 구현하는 사용자 정의 함수 문법
+	4-1. 함수 생성만 
+		create function 함수명([..])
+		return 함수 실행결과 반환하는 타입
+		is	
+			함수내에서 사용될 변수선언
+		begin
+			처리 로직 
+		end;
+		/
+
+	4-2. 함수 생성 또는 치환(기존 함수대신 새로 갱신)
+		create or replace function 함수명([..])
+		return 함수 실행결과 반환하는 타입
+		is	
+			함수내에서 사용될 변수선언
+		begin
+			처리 로직 
+		end;
+		/
+*/
+
+--1. emp table의 사번으로 사원 이름
+-- (리턴 값, 이름의 타입이 리턴타입) 검색 로직 함수 
+create function user_fun(no number)   -- 함수 user_fun() : 함수명 / no : parameter
+return varchar2				 -- 리턴 타입 명시
+is
+	v_ename emp.ename%type;  --새로운 변수 선언
+begin
+	select ename	
+		into v_ename
+	from emp where empno=no;
+
+	return v_ename;			-- 리턴 데이터
+end;
+/
+select user_fun(7369) from dual;
+
+
+--? 14단계의 로직 함수로 구현해 보기 
+-- mystar() 
+create or replace function mystar(no number)
+return varchar2
+is 
+	v_empno emp.empno%type := no;
+	v_ename emp.ename%type;
+	v_number number(3);
+	v_star varchar2(10) := '';
+begin
+	select ename, length(ename)
+		into v_ename, v_number
+	from emp
+	where empno=v_empno;
+
+	for i in 1..v_number loop
+		v_star := v_star || '*';
+	end loop;
+	
+	return v_star;
+end;
+/
+
+select mystar(7369) from dual;
+
+
+
+-- no는 가변적 따라서 함수의 parameter로 전환
+
+create or replace function mystar(no number)
+return varchar2     -- 리턴 타입 명시할 경우 타입의 사이즈 생략하셔요!!
+is 
+	v_empno emp.empno%type := no;
+	v_ename emp.ename%type;
+	v_number number(3);
+	v_star varchar2(10) := '';
+begin
+	select ename, length(ename)
+		into v_ename, v_number
+	from emp
+	where empno=v_empno;
+
+	for i in 1..v_number loop
+		v_star := v_star || '*';
+	end loop;
+	
+	return v_star;
+end;
+/
+
+select mystar(7369) from dual;
+
+-- 2차 개선 : 리펙토링
+create or replace function mystar(v_empno emp.empno%type)
+return varchar2    
+is 
+	v_ename emp.ename%type;
+	v_number number(3);
+	v_star varchar2(10) := '';
+begin
+	select ename, length(ename)
+		into v_ename, v_number
+	from emp
+	where empno=v_empno;
+
+	for i in 1..v_number loop
+		v_star := v_star || '*';
+	end loop;
+	
+	return v_star;
+end;
+/
+
+select mystar(7369) from dual;
+
+
+
+--2.? %type 사용해서 사원명으로 해당 사원의 직무(job) 반환하는 함수 
+-- 함수명 : emp_job
+create or replace function emp_job(v_name emp.ename%type)
+return emp.job%type
+is
+	v_job emp.job%type;
+begin
+	select job 
+		into v_job
+	from emp 
+	where ename = v_name;
+	
+	return v_job;
+end;
+/
+
+select emp_job('SMITH') from dual;
+
+
+-- 3번 ~ 5번문제까지 풀이하기
+
+--3.? 특별 보너스를 지급하기 위한 저장 함수
+	-- 급여를 200% 인상해서 지급(sal*2)
+-- 함수명 : cal_bonus
+-- test sql문장
+create function cal_bonus(v_empno emp.empno%type)
+return emp.sal%type
+is
+	v_sal2 emp.sal%type;
+begin
+	select sal*2
+		into v_sal2
+	from emp where empno=v_empno;
+
+	return v_sal2;
+end;
+/
+
+select empno, job, sal, cal_bonus(7369) from emp where empno=7369;
+
+
+-- 4.? 부서 번호를 입력 받아 최고 급여액(max(sal))을 반환하는 함수
+-- 사용자 정의 함수 구현시 oracle 자체 함수도 호출
+-- 함수명 : s_max_sal
+create or replace function s_max_sal(s_deptno emp.deptno%type) --(인자값, 인자값타입)
+return number
+is
+	max_sal emp.sal%type;
+begin
+	select max(sal) 
+		into max_sal
+	from emp
+	where deptno=s_deptno;
+
+	return max_sal;
+end;
+/
+
+select s_max_sal(10) from dual;
+
+-- emp에 존재하는 row 수 만큼 검색 : 논리적으로 부적합 
+select s_max_sal(10) from emp;
+
+
+--5. ? 부서 번호를 입력 받아 부서별 평균 급여를 구해주는 함수
+-- 함수명 : avg_sal
+-- 함수 내부에서 avg() 호출 가능
+
+create or replace function avg_sal(s_deptno emp.deptno%type)
+return number
+is
+	avg_sal number;
+begin
+	select round( avg(sal), 2 ) 
+		into avg_sal
+	from emp
+	where deptno=s_deptno;
+
+	return avg_sal;
+end;
+/
+select avg_sal(10) from dual;
+
+-- 논리적으로 부적합
+select distinct deptno, avg_sal(deptno) from emp;
+
+
+
+--6. 존재하는 함수 삭제 명령어
+drop function avg_sal;
+
+
+-- 함수 내용 검색 : 사전 table
+desc user_source;
+select text from user_source where type='FUNCTION';
+
+
+-- 프로시저
+--7. dept table은 pk(deptno) 설정되어 있음, dept에 새로운 데이터 저장 함수
+
+create or replace procedure insert_dept3(
+	v_deptno dept.deptno%type,
+	v_dname dept.dname%type,
+	v_loc dept.loc%type)
+is
+begin
+	insert into dept values(v_deptno, v_dname, v_loc);
+	exception
+		when dup_val_on_index  then
+			insert into dept values(v_deptno+1, v_dname, v_loc);
+end;
+/
+exec insert_dept3(77, 'a', 'a');
+exec insert_dept3(77, 'a', 'a');
+
+--8. procedure 또는 function에 문제 발생시 show error로 메세지 출력하기
+show error
+
+
+
+/*
+
+
+	- 가령 : login과 같은 무수히 많은 user가 동일한 로직 요청시에도 서버 단에선 단 하나의
+	함수가 그 수많은 user로 요청 처리
+	함수 하나가 재사용 단 주의사항 : client가 입력하는 모든 인증용 데이터는 명확히 구분
+	개발 방법으로 로컬 변수로 선언
+	함수 내부에 선언되는 변수 의미
+
+	- 고객 수 만큼 Customer 생성해야 데이터가 무결하게 관리 
+	class Customer:
+		id # 전역변수 
+
+		def __init__(self, pw):
+			self.pw = pw
+
+		def setId(newId):
+			id = newId
+
+	- login 인증 로직
+
+
+	방법 2 - Customer 객체 생성 : 함수 호출 여부와 무관하게 생성 
+			공유하는 객체 생성을 의미 	 
+
+	def loginCheck(id, pw):
+		인증시 Customer 의 정보 (id/pw) 로 db에 select
+		검증된 데이터의 결과로 반환 
+		방법 1 - Customer 객체 생성 : 함수가 호출해서 실행되면 생성 / 종료시 소멸
+*/
