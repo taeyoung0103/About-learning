@@ -1,0 +1,20 @@
+에러가 발생해도 무사히 진행되게 하는 코드 이해
+
+import cx_Oracle
+
+def dept01_create():
+    try:                            # 첫번째 로그인 연결 관련 시도
+        conn = cx_Oracle.connect(user="SCOTT", password="TIGER", dsn="xe")
+        try:
+            cur = conn.cursor()
+            cur.execute('drop table dept01')        # 먼저 dept01테이블을 드랍시도.
+            cur.execute('create table dept01 as select * from dept')    # dept01테이블을 dept와 같게 만드는 것을 시도.
+            cur.execute('alter table dept01 add constraint dept01_uk_deptno unique(deptno)')
+        except Exception as e:      # 위 3개중에 하나라도 에러가 나면 ex
+            print(e)
+            # alter = 테이블 정의를 변경할때 사용(속성 추가), unique, pk = 중복성 제거용도
+        finally:
+            cur.close()             # 에러가 없으면 cursor를 종료한다.
+            conn.close()            # cursor종료후 connect도 종료한다.
+    except Exception as e:          # 이 전반적인 과정에서 예외가 발생하면 최종적으로 exception을 출력한다.
+        print(e)
