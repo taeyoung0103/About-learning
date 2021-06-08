@@ -64,7 +64,7 @@ end;
 select * from emp01;
 select * from user_source;
 -- 프로시저 실행하는 명령어
-execute update_job;   -- sqlplus 창에서 확인 가능한 단순 명령어
+execute update_job;   -- sqlplus 창에서 확인 가능한 단순 명령어, execute 문을 사용해야 적용.
 select * from emp01;
 
 rollback;
