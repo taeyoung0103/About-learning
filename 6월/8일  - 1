@@ -45,9 +45,9 @@ Douglas                                  Grant
 
 '''
 
+------------------------------------------------------
 
 
-# step03
 import cx_Oracle        #oracle db를 쉽게 활용 가능하게 해주는 driver
 
 connection = cx_Oracle.connect(user="SCOTT", password="TIGER", dsn="xe")
@@ -56,12 +56,12 @@ print("Database version:", connection.version)
 cursor = connection.cursor()
 
 #for row in cursor.execute("""select * from dept"""):
-#    print(row, type(row))       # tuple 타입 출력   
-#    print(row[0])               # tuple 객체의 첫번째 요소 데이터 출력
+#    print(row, type(row))       # 실행시 tuple 타입 출력   
+#    print(row[0])               # 실행시 tuple 객체의 첫번째 요소 데이터 출력
 
 #cursor.execute("select * from dept")
 #while True:
-#    row = cursor.fetchone()         # 한 row씩 반환하는 함수, 1개데이터 출력 
+#    row = cursor.fetchone()         # 실행시 한 row씩 반환하는 함수, 1개데이터 출력 
 #    if row is None:
 #        break
 #    print(row)
@@ -87,7 +87,11 @@ for row in rows:
 cursor.close()
 connection.close()
 
-
+# fetchall() 에 관하여
+# 커서의 fetchall() 메서드는 모든 데이타를 한꺼번에 클라이언트로 가져올 때 사용된다. 
+# 또다른 fetch 메서드로서 fetchone()은 한번 호출에 하나의 Row 만을 가져올 때 사용된다. 
+# fetchone()을 여러 번 호출하면, 호출 때 마다 한 Row 씩 데이타를 가져오게 된다. 
+# fetchmany(n) 메서드는 n개 만큼의 데이타를 한꺼번에 가져올 때 사용된다.
 
 
 # oracle driver 모듈 사용 선언
