@@ -1,0 +1,84 @@
+# Book이라는 클래스를 만들고, 생성자 만들고, 데이터 입력 하는 과정
+
+# Book_Info
+# 데이터 표현 클래스 
+
+class Book:
+    # 특별 메소드, 생성자
+    def __init__(self, title, author, price):  # 로컬변수
+        # 멤버변수 선언
+        self.title = title
+        self.author = author
+        #self.price = new_price      # 100 이상의 유효성 로직 처리 필수, 
+                                    # 따라서 이미 구현되어 있는 로직을 불러오기 위해 self.price = price 대신 이것을 입력
+        self.price = 0
+        if price > 100:
+            self.price = price      # 두번의 필터링을 위해 if 입력
+                                    # 기본적으로 가격을 0으로 하지만, 100초과의 값이 들어오면, 그 값을 출력한다.
+
+
+    def getTitle(self):      # get = 서비스를 받아가는것
+        return self.title
+
+    def setTitle(self, new_title):
+        self.title = new_title
+    
+    def getAuthor(self):     
+        return self.author
+
+    def setAuthor(self, new_author):
+        self.author = new_author
+
+    def getPrice(self):      
+        return self.price
+
+    def setPrice(self, new_price):
+        if new_price > 100:
+            self.price = new_price
+        else :
+            self.price = 0
+            
+            
+-----------------------------------------------
+# Book_Store
+
+from book_info import Book 
+import cx_Oracle
+
+
+# client 화면을 통해서 책 정보를 등록 
+# -> 데이터 획득 Book 객체 생성
+# -> oracle db에 저장 
+
+# Insert(입력) 부분
+def book_insert(book):   
+    conn = cx_Oracle.connect(user="SCOTT", password="TIGER", dsn="xe")
+    cur = conn.cursor()
+
+    cur.execute("insert into book values (seq_book_no.nextval, :title, :author, :price)", \
+        title=book.getTitle(), author=book.getAuthor(), price=book.getPrice())
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+
+# Update(새로운값적용) 부분
+def book_update(book):   
+    conn = cx_Oracle.connect(user="SCOTT", password="TIGER", dsn="xe")
+    cur = conn.cursor()
+    cur.execute("update book set author=:author, price=:price where title=:title", \
+        author=book.getAuthor(), price=book.getPrice(), title=book.getTitle())
+    conn.commit()
+
+    cur.close()
+    conn.close()
+
+
+if __name__ == '__main__':
+    # book_insert(Book('python', '반썸1', 205))
+    book_update(Book('python', '유재석', 700))              # python 값에 위치한 것들을 '유재석'과 700으로 변환한다.
+
+            
+            
+            
