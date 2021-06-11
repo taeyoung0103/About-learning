@@ -1,0 +1,110 @@
+py 파트
+
+from flask import Flask, render_template
+
+from flask import request
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('test_request.html')
+
+
+@app.route('/login', methods=['post'])
+def login():
+    name = request.form.get('name')
+    
+    id = request.form.get('id')
+    
+    pw = request.form.get('pw')
+    #info = {"name":"pw", "age":30}
+
+    age = request.form.get('age')
+
+    why = request.form.get('why')
+    
+    return render_template('test_response.html', idencore=id, pwencore=pw, nameencore=name, ageencore=age, whyencore=why)
+
+if __name__ == '__main__':
+    app.run(debug=True)
+    
+--------------------------------------------------------------------------------    
+    
+첫 화면인 request 파트
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+    <h2 align=center>회원가입</h2>
+
+    <form action="login" method="post">
+
+        <label>name:</label><br>
+        <input type="text" id="name" name="name" value=""><br>
+
+        <label>id:</label><br>
+        <input type="text" id="id" name="id" value=""><br>
+
+        <label>pw:</label><br>
+        <input type="password" id="pw" name="pw" value=""><br><br>
+
+        <label>age:</label><br>
+        <input type="number" id="age" name="age" value=""><br>
+
+        <label>why:</label><br>
+        <input type="text" id="why" name="why" value=""><br><br>
+
+        
+        <input type="submit" value="회원가입">
+    </form> 
+  
+</body>
+</html>
+    
+    
+------------------------------------------------------------------
+
+request이후 화면인 response 파트
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>회원정보 목록</h2>
+
+    -{{nameencore}}- <br>
+    -{{idencore}}-  <br>
+    -{{pwencore}}-  <br>
+    -{{ageencore}}-  <br>
+    -{{whyencore}}- <br>
+
+</body>
+</html>
+    
+    
+    
+    
+요약하자면, py파트에서는 이름, 아이디, 비밀번호, 나이, 가입이유를 입력하는 함수를 만들었다.
+이름이 request인 파트에서는 첫화면의 인터페이스를 만드는 작업을 했다.
+이름이 resourse인 파트에서는 request에서 입력하고 난 후의 화면의 인터페이스를 만드는 작업을 했다.
+추가로 해봐야할것은 스타일 추가와 기능추가를 해봐야한다.
+
+
+
+
+    
+    
