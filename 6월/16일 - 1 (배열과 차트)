@@ -1,0 +1,123 @@
+1차원 배열과 2차원 배열 사용 방법
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h3>배열(array)다수의 data 값들을 하나의 변수로 관리 가능한 구조.</h3>
+    1. 데이터 구분을 위해서는 index 값으로 구분 <br>
+    2. <a href="">w3schools 학습 page</a>
+    <hr><br>
+    <script>
+
+let a1 = [1, 2, 3, 4]                                   // a1=[1,2,3,4] 로 변수를 정의한다. let으로 선언한 변수는 재선언 할수없다.
+        console.log(typeof(a1));   // 변수가 참조하는 타입, python에선 type()
+        console.log(a1[1]);  // 2
+        a1.push(5);   // 5 추가 저장
+        console.log(a1);
+
+        //2차원 배열 [[], []]
+        let a2 = [[1, 2], [3, 4]];
+        console.log(a2);
+        console.log(a2[1][0]);  // 3만 출력 , 참고로 console.log는 F12누르고 console창에서만 확인할수있다.
+
+        console.log('-------');
+        for (v in a1){   
+            console.log(v);  // 0~4 출력
+        }
+        console.log('******');
+
+        for (v in a1){   
+            console.log(a1[v]);  // 1~5 즉 보유된 데이터 출력
+        }    
+    </script>
+
+</body>
+</html>
+
+
+
+-------------------------------------------------------
+차트 나타내는 방법
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 
+        1. google에서 chart 개발 가능한 library 제공
+        2. 사용자인 개발자들은 매우 쉬운 방식으로 chart
+    -->
+    
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>    
+    <script type="text/javascript">
+
+        //구글에서 제공하는 다양한 차트 중 corechart 를 사용하겠다는 선언 
+        google.charts.load('current', { 'packages': ['corechart'] });
+
+        //현 코드 상에서 차트가 그려지는 시점은 js 코드들이 실행되면서 그려짐
+        //client들의 이벤트 action 감지 없이 렌더링
+        
+        /* Load : 렌더링 즉 브라우저가 body tag가 읽혀지면 자동 실행하겠다는 이벤트 처리 함수(구글에서 개발) */
+        
+        google.charts.setOnLoadCallback(drawChart);  // drawchart의 기능을 가져와서 만든다.
+
+        //google.visualization.arrayToDataTable() : 배열 데이터로 chart 데이터로 사용하겠다는 설정
+        function drawChart() {
+
+            var data = google.visualization.arrayToDataTable([
+                ['Task', 'Hours per Day'],
+                ['Work', 11],
+                ['Eat', 2],
+                ['Commute', 2],
+                ['Watch TV', 2],
+                ['잠', 7]
+            ]);
+
+            var options = {
+                title: '나의 하루 일과'
+            };
+
+            //어디에 어떤 차트를 그릴 것인가에 대한 모든 정보를 보유한 객체 생성 
+            var chart = new google.visualization.PieChart(document.getElementById('piechart'));
+            
+            //*** chart라는 변수를 만드는데, 이는 구글.visualization.piechart형태를 가져오며, piechart라는 이름으로 출력한다.
+            
+            //char를 표현하는 실제 함수
+            chart.draw(data, options);
+        }
+    </script>
+</head>
+
+<body>
+    <h3>구글 차트 만들고 응용하기</h3>
+    <br><hr><br>
+
+    <div id="piechart" style="width: 900px; height: 500px;"></div>   // piechart 
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
