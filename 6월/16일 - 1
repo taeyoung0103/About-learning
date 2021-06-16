@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h3>
+        배열(array) 다수의 data값들을 하나의 변수로 관리 가능한 구조
+    </h3>
+    1.
+    2.
+    <hr><br>
+    <script>
+        let a1=[1,2,3,4]
+        console.log(typeof(a1)); // 변수가 참조하는 타입, python에서는 type()
+        console.log(a1[1]); // 2
+        a1.push(5); // 5 추가 저장
+        console.log(a1);
+
+        // 2차원 배령 [[], []]
+        let a2 = [[1,2],[3,4]];
+        console.log(a2[1][0]); // 3만 출력
+
+        console.log('--------------');
+        for (v in a1){
+            console.log(a1[v]); // 1부터 5, 보유된 데이터 출력
+        }
+    </script>
+</body>
