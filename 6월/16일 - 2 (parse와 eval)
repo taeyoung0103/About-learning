@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <h3>배열과 json을 서버에서 혹여 응답 받았을때 실제 문자열로 응답이 됩니다 
+        따라서 js에서 사용 가능하게 객체로 변환 하는 해결능력 향상하기</h3>
+    
+    <br><hr><br>
+
+    http protocol 기반의 server와 client의 통신시에 서버가 응답하는 모든 데이터는 실은 문자열로 간주 <br>
+    html/css/javascript도 서버가 client에게 응답 <br>
+
+    서버는 모든 표현을 string 인지해서 응답하면
+    브라우저  tag? css? java script로 인지해서 처리 <br>
+    
+    브라우저 내부에서 html/css/js 해석기 존재 <br>
+
+    <br><hr><br>
+
+    <script>
+        //step02 - json 형식의 문자열이 서버로 부터 응답되었을때 
+        // json 실객체로 변환하는 기술
+        let person_all = `{
+            "p1": {
+                "name": "John",
+                "id": 5566
+            },
+            "p2": {
+                "name": "재석",
+                "id": 12
+            },
+            "p3": {
+                "name": "종원",
+                "id": 13
+            },
+            "p4": {
+                "name": "영자",
+                "id": 15
+            }
+        }`;
+        
+        /* eval() : parse() 
+        1. eval() : "" 표현 제거 하고 문법적으로 js 코드가 부합되면 모두 다 변환
+                    - 해커들이 eval() 구현된 코드가 확인되면 parameter로 못된 짓 수행 가능 
+                    - 보안 측면에서 부득이한 경우가 아닌 경우엔 eval() 사용 비추 
+
+        2. parse() : json 포멧의 문자열과 배열에 한해서만 json 객체로 변환
+                key와 value가 단일 따옴표로 된 구조는 변환 불가 (*****)
+                - 제공받는 데이터 셋이 json 포멧인 경우 쌍따옴표 체크 
+        */ 
+
+        //it 업계에서 JSON 객체로 변환시키때 권장하는 함수
+        /* parse
+        - 파싱 또는 파서 라는 의미 : 구문 해석해서 문법 검증 및 내용 이해의 전반적인 모든 것들을 의미
+        간혹 변환 작업도 포함 */
+        let person_all1 = JSON.parse(person_all);
+        console.log(person_all1.p1.name);  //John
+
+
+        //***json객체로 변환시에는 eval()에는 반드시 () 문자열로 표현 필수 
+        let person_all2 = eval("(" + person_all + ")");    // + 는 결합연산자이므로, 저거를 꼭 넣어야한다.
+        console.log(person_all2.p1.name);
+
+
+
+        console.log("-- step01 --");
+        //step01 - eval() : 배열 / 연산자 식등을 js 코드로 변환하는 기술
+        let arr = `[
+            ['Task', 'Hours per Day'],
+            ['Work', 11],
+            ['Eat', 2],
+            ['Commute', 2],
+            ['Watch TV', 2],
+            ['잠', 7]
+        ]`;
+        console.log(typeof(arr));  //string
+        
+        //실제 데이터를 index로 활용 가능한 배열로 변환 
+        arr = eval(arr);   // js 코드로 변환해주는 독특한 함수 
+        console.log(arr);
+        console.log(typeof(arr));  //object
+
+        //문자열의 " " 따옴표 제거 후에 적합한 js 코드로 실제 실행 
+        // eval("document.write(arr[2][0])");  //body 부분에 출력하는 함수 
+
+        // document.write( eval("5+10") );   //15
+
+    </script>
+
+</body>
+
+</html>
