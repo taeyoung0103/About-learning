@@ -5,3 +5,15 @@ def solution(a, b):
     return sum(range(min(a,b), max(a,b)+1))
     
     
+# start와 end 활용
+
+def solution(a, b):
+    answer = 0
+    
+    start = min(a, b)
+    end = max(a, b)
+    
+    for i in range(start, end+1):
+        answer+=i
+    
+    return answer
