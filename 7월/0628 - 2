@@ -1,0 +1,137 @@
+# ~ : 설명
+예시 ~
+
+
+# 파일 읽는 방법
+df = pd.read_csv('dataset/01.date_data.csv')
+
+# dtypes : 문자열 타입을 object 타입으로 표현
+
+df.values # values = 데이터만 나옴
+
+df['Birth'] 혹은 df.Birth 이렇게 실행하면 'Birth'에 해당하는 값들만 나온다.
+
+# object 즉 문자열 타입을 datetime 타입으로 변환하는 구조
+df['Birth'] = pd.to_datetime(df['Birth'], format='%Y-%m-%d %H:%M:%S')
+
+# '2019-01-01' : 문자열
+# pd.to_datetime('2019-01-01') : 문자열을 datetime 즉 날짜 표현 타입으로 변환
+# - : 경과일
+eday = df['Birth'] - pd.to_datetime('2019-01-01')
+eday 출력시 
+0   731 days 09:10:00
+1   738 days 09:20:00
+2   762 days 10:20:00
+3   763 days 11:40:00
+4   789 days 15:10:00
+5   830 days 19:20:00
+6   911 days 21:20:00
+7   931 days 23:30:00
+8   970 days 11:48:00
+9   974 days 03:12:00
+Name: Birth, dtype: timedelta64[ns]
+이렇게 경과일들만 나온다.
+
+# 경과일을 월을 기준으로 월 데이터만 도출하고싶다면 M을 대입하고,
+# 경과일을 일을 기준으로 일 데이터만 도출하고싶다면 D를 대입해라.
+eday.astype('timedelta64[D]') 입력하면 
+0    731.0
+1    738.0
+2    762.0
+3    763.0
+4    789.0
+5    830.0
+6    911.0
+7    931.0
+8    970.0
+9    974.0
+이렇게 출력되는데, 값이 소수점까지 나오므로, 정수로 바꿔서 소수점을 없애기 위해서는
+eday.astype('timedelta64[D]').astype('int')로 입력하면 된다.
+
+
+# 데이터 수정
+df.iloc[0,0]  # ~.iloc = 데이터 수정 함수
+df.loc[0, 'Name'] = '김순신'
+이렇게 입력하면 0번째 행에서 name 이라는 이름을 가진 열의 셀이 바뀐다.
+
+# 특정 Series 삭제 하는 구문
+del df['age'] # java script와 동일
+
+# sal 급여 시리즈 추가, 단 학생인 경우에는 급여는 no로 변환, 학생이 아닌 경우에는 yes 값으로 변환
+# 값에 따른 데이터 적용(조건별 값 차별화)
+# df['sal'] = 0 으로 타이핑하면 sal이라는 컬럼이 새로 만들어지는데, 다 0으로 적용된다.
+df['sal'] = 0
+
+# job이 학생을 제외한 모든 친구들은 sal에 yes
+# 3항 연산자 : 조건식? 조건식이 true인 경우 실행, 조건식이 false인 경우 샐행
+df['job'] == '학생'
+
+
+# 삼항 연산식을 Numpy의 where이라는 함수의 parameter로 적용시 syntax
+# np.where(조건식, 조건식이 true인 경우 반환, 조건식이 false인 경우 반환)
+df['sal'] = np.where(df['job'] != '학생', 'yes', 'no')
+
+
+# 중복 데이터 여부 확인 가능한 함수
+df.duplicated()
+
+# df.drop_duplicates() 결과값으로 True였던 row값 삭제
+df = df.drop_duplicates()
+
+# keep속성으로 마지막 중복 데이터 유지하고 첫번째 데이터 삭제
+# hint는 parameter에서 Shift + Tab 으로 설정
+df.drop_duplicates(keep='last')
+
+# 원본 DataFrame에서 수정해서 새로 
+df.drop_duplicates('name', keep='last')
+
+# inplace=True : 원본에 실제 변경 사항을 여과없이 적용, 원본 수정
+df.drop_duplicates('name', keep = 'last', inplace=True)
+
+# age의 평균을 구해서 df의 age값이 결측치에 한해서만 평균값 적용
+# df['age'].mean() - age의 평균
+# fillna(결측치에 적용될 데이터, inplace=True(갱신된 내용 원본에 반영))
+df['age'].fillna(df['age'].mean() , inplace=True)
+
+# value_counts() : 데이터별 개수 counting
+df['job'].value_counts()
+
+# 취미별 grouping 후에 연산이 가능한 Series의 값의 합을 자동으로 도출
+df.groupby('hobby').sum()
+
+# select distinct job from emp;
+df['job'].unique()
+
+
+## 결측치 데이터를 다루기 위해서
+# np.nan : 결측치 표현
+# test를 위해서 결측치 추가
+df.iloc[5, 1] = np.nan
+
+# 결측치를 중앙값(데이터를 오름차순으로 나열해서 가운데 값을 의미)으로 치환
+# job별로 그룹핑 혹은 그룹핑되어있는 job별로 각 중앙값 도출
+# 그 중앙값으로 변환
+# 중앙값 특징 : 홀수라면 정말 정 중앙 값을 의미한다. (평균 x)
+# 짝수인 경우 중앙 2개의 데이터를 더한값의 나누기 2한 값이 중앙값으로 정의된다.
+df['age'] = df.groupby('job')['age'].transform('median')
+
+
+# == 값의 동등비교 연산자
+df.name == '신동엽'
+
+# True 값을 보유한 값을 기준으로 해서 새로운 DataFrame 객체 생성
+# 데이터 조작
+df2 = df[f1 & f2]
+이 경우 저 2개의 조건을 모두 만족하는 값들이 테이블로 출력된다.
+
+# 두개의 DataFrame이 좌우로 결합
+# axis : 기준이 되는 축
+# axis=1 : 컬럼 즉 Series를 추가하는 구조로 결합
+df_all = pd.concat([df1, df2], axis = 1)
+axis = 1 -> 행, axis = 0 -> 열
+
+# 두개의 DataFrame을 하나로 결합(merge)
+# concat([결합시킬 데이터], axis, ignore_index=True) 결합함수
+# 결합시킬 데이터 = list / axis=0 (위아래), axis=1(좌우), index재정렬 ignore_index
+# 기본적으로는 위아래로 결합
+df_all = pd.concat([df1, df2])
