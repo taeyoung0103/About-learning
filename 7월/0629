@@ -40,3 +40,33 @@ c2 = s1['성별'] == '남성'
 c3 = c1 & c2
 s1[c3]
 
+
+# 다중조건식에서 하나만 True인 경우의 연산식
+# Pandas 현 로직
+# 성별이 남성 또는 입국객수가 150000 이상인 모든 데이터
+conditions = (s1['성별'] == '남성') | (s1['입국객수'] >= 150000)
+s1[conditions]
+
+
+# 한 컬럼에 여러 조건 필터링하기 4
+# isin() : 검색하고자 하는 값들을 list 형식으로 적용, 일치하는 값에 해당할 경우 True값 반환
+# 일치하는 값에 해당할 경우 True값 반환
+# sql의 in 연산식과 동일
+# select * from s1 where 국적코드 in ('A01', 'A31')
+c = s1['국적코드'].isin(['A01', 'A31'])
+
+
+# 1. left=s1 : 왼쪽 table (Data Frame) 지정
+# 2. right=code_master : 오른쪽 table 지정
+# 3. how='left', : 왼쪽 table 기준으로 두 table 결합
+# 4. left_on='국적코드', : 왼쪽 table의 기준 칼럼은 국적코드
+# 5. right_on='국적코드' : 오른쪽 table의 기준 컬럼은 국적 코드
+s1_code = pd.merge(left=s1, right=code_master, how='inner', 
+                   left_on='국적코드', right_on='국적코드')
+                   
+
+# pd.concate([DataFrame들]) - 상하, 좌우 병합하고자 하는 DataFrame들이 parameter로 유입
+# pd.merge(left? right?) - 좌우 병합하고자 하는 DataFrame들이 parameter로 유입
+# DataFrame객체.append(상하로 결합할 DataFrame 객체)
+sample = s1_code.append(s2_code, ignore_index=True)
+
