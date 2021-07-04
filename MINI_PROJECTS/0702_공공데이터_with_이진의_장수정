@@ -1,0 +1,105 @@
+# 이 작업의 이유 :
+# 파일이 2개, avg15와 avg18이 있다.
+# 이 파일들을 합치려고 하였으나 행과 열이 다른것을 보고 이를 같게 하게끔 만들려고한다.
+
+
+import numpy as np
+import pandas as pd
+import warnings
+warnings.filterwarnings('ignore')
+ab = pd.read_csv('dataset/aptPriceDataSet/avg15.09.csv')
+
+# 시도, 시군구행을 맨위로 보내기 위해 header=2를 입력
+ab = pd.read_csv('dataset/aptPriceDataSet/avg15.09.csv',
+                   header=2 ) #index_col=0)
+                   
+# '구분'열과 'Unnamed:1'열이 비슷한 것들을 포함하는 열이므로, 이 2개열을 합치고자한다.
+# 먼저 '6대광역시'와 '부산'이 겹치므로 '6대광역시'를 빈칸으로 바꾼다.
+ab['구분'] = ab['구분'].replace(['6대광역시'],' ')
+
+# 마찬가지로 '지방'도 지운다.
+ab['구분'] = ab['구분'].replace(['지방'],' ')
+
+# 그다음에 nan를 일제히 빈칸으로 바꾼다.
+ab.fillna(' ')
+ab = ab.fillna(' ')
+
+# 2개의 열을 합쳐서 데이터도 합친다.
+ab['test'] = ab['구분'] + ab[ 'Unnamed: 1']
+# 이를 실행하면 맨 오른쪽에 'test' 열이 생긴다.
+
+# 맨 오른쪽에 있으면 보기 힘드므로 맨 왼쪽으로 옮기려고 만든다.
+ab = ab[ ['test'] + [ col for col in ab.columns if col != 'test' ] ]
+
+# 합쳐진 열이 생겼으므로 필요없어진 2개의 열을 지우자.
+del ab['구분']
+del ab['Unnamed: 1']
+
+# 테이블을 보면 'test'열 중에 빈칸인 곳이 존재하는데, 이 행은 필요없는 데이터들이라고 생각해서 행을 지우고자한다. 9행과 21행이 이에 해당한다.
+ab = ab.drop(9, axis=0)
+ab = ab.drop(21, axis=0)
+
+# 'test'는 테이블과 연관이 없는 이름이므로 '구분'으로 바꿔보자
+ab = ab.rename(columns={'test': '구분'})
+
+
+
+# 두번째 엑셀
+cd = pd.read_csv('dataset/aptPriceDataSet/avg18.07.csv', encoding = "utf-8" )
+
+# 먼저 지역명이 avg15셀과 같은지 확인해보자.
+cd['지역명'].unique()
+
+# 데이터가 너무 많으니 2015년 10월 데이터만 먼저 테스트해보자.
+cd = pd.read_csv('dataset/aptPriceDataSet/avg18.07.csv', encoding = "utf-8" )
+df = cd.head(85)
+
+# 전체데이터만 필요하므로 전체만 뽑아보자.
+gh1=df[df['규모구분']=='전체']
+
+# 분양가격 데이터만 뽑아보자.
+ij = gh1['분양가격(㎡)'].astype(int)
+
+# 전국 평균 분양가격 데이터를 만들어보자. 만들고 테이블에 대입해보자.
+kl = int(ij.sum()/17)
+gh2 = pd.DataFrame({"지역명" : "전국", "규모구분" : "전체", "연도" : 2015, "월" : 10, "분양가격(㎡)" : [kl]})
+gh_all = pd.concat([gh1,gh2])
+
+# 다음은 수도권지역의 데이터만 또 따로 뽑기위해 만들어보자.
+
+loc1 = gh1['지역명'] == '서울'
+loc2 = gh1['지역명'] == '경기'
+loc3 = gh1['지역명'] == '인천'
+
+table1 = gh1[loc1]
+table2 = gh1[loc2]
+table3 = gh1[loc3]
+
+table_all = pd.concat([table1, table2, table3])
+
+# 나머지 과정은 위 전국 데이터 만들떄와 같다.
+mn = table_all['분양가격(㎡)'].astype(int)
+op = int(mn.sum()/3)
+gh3 = pd.DataFrame({"지역명":"수도권", "규모구분" :"전체", "연도":2015, "월":10, "분양가격(㎡)":[op]})
+gh_all = pd.concat([gh1,gh2,gh3])
+
+
+gh4 = pd.DataFrame({"시도":gh_all["지역명"],"10월":gh_all['분양가격(㎡)']})
+
+# 맨 앞 index값이 0, 5, 10 ...  이런 형태이므로 이를 0,1,2 와 같은 정상적인 형태로 바꾸고자한다.
+# 방법은 index를 새로만든다음에 기존 index값 열을 삭제하는 방식이다.
+gh4 = gh4.reset_index()
+del gh4['index']
+
+#
+abb = ab.apply(lambda x: x.str.strip(), axis = 1)
+
+# 합쳐보자
+final = pd.merge(left=abb,
+                 right=gh4,
+                 how='left',
+                 left_on='시도',
+                 right_on='시도')
+                 
+# 이를 실행하면 10월데이터가 9월데이터 오른편에 위치함을 확인할수 있다.
+
