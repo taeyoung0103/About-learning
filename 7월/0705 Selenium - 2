@@ -1,0 +1,73 @@
+1. 이전에 naver와 google로 연습했으니, 직접 페이지를 만들고 py파일로 자동실행되게끔 만들어보자.
+
+- 먼저 html 양식
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    input tag 만들고 입력해서 입력된 데이터가 encore라면 "안녕하세요" 출력 <br>
+    encore가 아니면 "어디서 오셨어요~?" 출력 <br>
+
+    <!-- input form tag or 한행 입력 text field 라고 함
+        id라는 속성은 js상에서 주로 사용
+        name 속성은 서버단에서 주로 사용, 크롤링 API상에서도 사용하기도 함
+    -->
+    <input type="text" name="data" id="data">
+
+    <button onclick="data_check()" id="btn" name="btn">입력</button>
+    <br><hr><br>
+    <div id="view_data"></div>
+
+    <script>
+        function data_check(){
+            v= document.getElementById("data").value;
+
+            if(v == 'encore'){
+                document.getElementById("view_data").innerText = "안녕하세요";
+            }
+            else{
+                document.getElementById("view_data").innerText = "어디서 오셨어요~?";
+            }
+        }
+
+    </script>
+
+</body>
+</html>
+
+
+
+- py 양식
+
+from selenium import webdriver
+import time 
+
+driver = webdriver.Chrome("c:/driver/chromedriver")
+
+driver.get("http://127.0.0.1:5500/4.selenium/step03mypage.html")
+
+# input tag
+tag = driver.find_element_by_name("data")
+
+# button tag
+btn = driver.find_element_by_id("btn") # id 속성으로 찾는 함수
+
+# input 에 입력
+tag.send_keys("encore") 
+
+# button 클릭
+btn.click()
+
+time.sleep(7) 
+
+driver.quit()
+
+
+
+
