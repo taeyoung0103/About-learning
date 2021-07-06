@@ -30,8 +30,10 @@ sns.relplot(x='total_bill', y='tip', data=tips);
 sns.set_style(style='darkgrid')
 sns.relplot(x='total_bill', y='tip', data=tips, hue='smoker');
 
+# 스타일이 달라진다
 sns.set_style(style='darkgrid')
 sns.relplot(x='total_bill', y='tip', data=tips, hue='size');
 
+# 스타일이 o, x 모양으로도 만들어진다.
 sns.set_style(style='darkgrid')
 sns.relplot(x='total_bill', y='tip', data=tips, hue='size', style='smoker');
