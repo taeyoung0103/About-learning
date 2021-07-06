@@ -1,0 +1,118 @@
+ --- 산점도 ---
+!pip show seaborn
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot
+import seaborn as sns
+
+# matplot 시각화가 잘 안되는 경우 고려해서 설정
+# vsc에서는 불필요한 설정이다.
+%matplotlib inline
+
+# 레스토랑 팁 데이터 셋 활용
+'''
+미션 : tip을 어떤 사람이 많이 주는지?
+분석 - 데이터 취합
+'''
+tips = sns.load_dataset("tips")
+
+# total_bill 즉 계산한 금액과 tip 관계도 확인 - 산점도
+# 축별 tip? total_bill? 라벨링
+sns.relplot(x='total_bill', y='tip', data=tips);
+
+# 스타일 적용
+sns.set_style(style='darkgrid')
+sns.relplot(x='total_bill', y='tip', data=tips);
+
+# 스타일 적용, feature를 색으로 구분
+# 흡연 비흡연에 대한 색을 구분 - 범례 표현도 자동 설정()
+sns.set_style(style='darkgrid')
+sns.relplot(x='total_bill', y='tip', data=tips, hue='smoker');
+
+# 스타일이 달라진다
+sns.set_style(style='darkgrid')
+sns.relplot(x='total_bill', y='tip', data=tips, hue='size');
+
+# 스타일이 o, x 모양으로도 만들어진다.
+sns.set_style(style='darkgrid')
+sns.relplot(x='total_bill', y='tip', data=tips, hue='size', style='smoker');
+
+
+
+--- 범주형 ---
+
+tips = sns.load_dataset("tips")
+
+# day로 나눈다음, 각각 day의 개수를 count하겠다.
+tips['day'].value_counts()
+
+# 요일별 tip이 수행된 데이터를 시각화
+sns.catplot(x='day', y='tip', data=tips);
+
+# 중복되게 보이지 않게 하기위해서 kind='swarm'사용
+sns.catplot(x='day', y='tip', data=tips, kind='swarm');
+
+# 박스형
+sns.catplot(x='day', y='tip', data=tips, kind='box');
+
+# 바이올린형(모양이 바이올린 닮았다고해서)
+sns.catplot(x='day', y='tip', data=tips, kind='violin');
+
+# 바(막대기)형
+sns.catplot(x='day', y='total_bill', data=tips, kind='bar');
+
+# 날씬한 막대기형
+sns.catplot(x='day', y='total_bill', data=tips, kind='bar', hue='day');
+
+# point를 적용하는 범주형 데이터 차트
+sns.catplot(x='day', y='total_bill', data=tips, kind='point');
+
+
+
+--- 새로운 데이터 ---
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_theme()
+
+# Load the example flights dataset and convert to long-form
+flights_long = sns.load_dataset("flights")
+
+# 열점도 = matplotlib
+# Draw a heatmap with the numeric values in each cell
+# 중요
+# 섬세한 작업은 sns가 직접적으로 적용 불가한 부분이 있음. 해결책 : matplotlib
+f, ax = plt.subplots(figsize=(9, 6))
+sns.heatmap(flights, annot=True, fmt="d", linewidths=.5, ax=ax)
+
+# 사이즈 키워보기
+f, ax = plt.subplots(figsize=(15, 6))
+sns.heatmap(flights, annot=True, fmt="d", linewidths=.5, ax=ax) # 정상
+
+# annot=True를 없애보자
+f, ax = plt.subplots(figsize=(15, 6))
+sns.heatmap(flights, fmt="d", linewidths=.5, ax=ax)
+# annot=True : 이것이 있어야 각 데이터를 표현할 수 있다, 생략시 수치값이 안보인다.
+
+# f, ax 생략시 최소 사이즈로 heatmap이 그려지긴 그려지지만 사이즈를 조절하기 위해서는 필요
+# linewidths=5 : 여백을 표현하는 속성이다.
+f, ax = plt.subplots(figsize=(9, 6))
+sns.heatmap(flights, annot=True, fmt="d", linewidths=.5, ax=ax)
+
+# fmt='d' : 정수로 표기하라는 뜻
+f, ax = plt.subplots(figsize=(15, 6))
+sns.heatmap(flights, annot=True, linewidths=.5, ax=ax)
+# fmt='d' 를 사용안하면 숫자가 상당히 지저분해진다.
+
+
+
+
+
+
+
+
+
+
+
+
