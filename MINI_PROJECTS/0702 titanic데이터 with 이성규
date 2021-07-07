@@ -14,7 +14,8 @@ sns.countplot(data=titanics, x='pclass')
 
 titanics['pclass'].value_counts()
 
-
+# count값의 인덱스 추출
+titanics['pclass'].value_counts().index
 
 
 
