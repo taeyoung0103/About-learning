@@ -23,4 +23,28 @@ titanics['pclass'].value_counts().index.tolist()
 # order_list로 재작성
 order_list = titanics['pclass'].value_counts().index.tolist()
 
+# 왼쪽부터 숫자가 큰 데이터가 차례로 나오는 그래프가 출력된다.
+sns.countplot(data=titanics, x='pclass', order=order_list);
+
+
+# 생존자들 관련 데이터 사용
+# 위와 똑같이 왼쪽부터 내림차순을 사용
+# 생존자 (=1) 만을 뽑아낸 데이터
+ti_survived = titanics.loc[titanics['survived'] == 1]
+
+# pclass를 x축으로 하는 그래프
+# 그래프를 보면 값이 1, 3, 2순임을 알수있다. 
+sns.countplot(data=ti_survived, x='pclass');
+
+# index값을 뽑은다음 이를 order_list2로 재정의한다.
+order_list2 = ti_survived['pclass'].value_counts().index.tolist()
+
+# 출력하면 왼쪽부터 내림차순으로 그래프가 다시 나온다.
+plt.figure(figsize=[5,10])
+sns.countplot(data=ti_survived, x='pclass', order=order_list2);
+
+
+
+
+
 
