@@ -20,7 +20,7 @@ titanics['pclass'].value_counts().index
 # 추출한 index값 tolist로
 titanics['pclass'].value_counts().index.tolist()
 
-
-
+# order_list로 재작성
+order_list = titanics['pclass'].value_counts().index.tolist()
 
 
