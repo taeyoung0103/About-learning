@@ -1,0 +1,127 @@
+
+# match - 일반적인 쿼리, OR 조건 검색, term 단위로 검색
+# match_phrase - AND 와 동일, 구문 단위로 검색, 공백을 포함해서 정확히 일치하는 문서(doc, row) 검색
+
+# 임의의 테이블을 만들때 혹시를 모르니 Delete, 삭제하고 다시만들자.
+# table drop 개념
+DELETE my_index
+
+# 이번에 사용할 임의의 데이터이다. 이를 입력하자
+POST my_index/_bulk
+{"index":{"_id":1}}
+{"message":"죽는 날까지 하늘을 우러러 한 점 부끄럼이 없기를"}
+{"index":{"_id":2}}
+{"message":"죽는 날까지 하늘을 우러러 한 점 부끄럼이 없기를, 잎새에 이는 바람에도 나는 괴로워했다"}
+{"index":{"_id":3}}
+{"message":"죽는 날까지 하늘을 우러러 한 점 부끄럼이 없기를, 잎새에 이는 바람에도 너는 괴로워했다"}
+{"index":{"_id":4}}
+{"message":"chrome google Chrome Google"}
+{"index":{"_id":5}}
+{"message":"하늘사 Google Chrome"}
+{"index":{"_id":6}}
+{"message":"pink"}
+{"index":{"_id":7}}
+{"message":"pinkRed"}
+{"index":{"_id":8}}
+{"message":"pink red blue"}
+{"index":{"_id":9}}
+{"message":"pink red blue black"}
+{"index":{"_id":10}}
+{"message":"pink red blue black green"}
+{"index":{"_id":11}}
+{"message":"pink blue red black green"}
+{"index":{"_id":12}}
+{"message":"pink pink"}
+{"index":{"_id":13}}
+{"message":"pink blue red black yellow green"}
+
+# desc my_index 와 흡사하다.
+GET my_index
+
+# select * 와 흡사하다. (where X)
+# 무언가 데이터를 찾을때는 _search를 사용하자.
+GET my_index/_search
+
+# id가 1인 row(doc)만 검색
+GET my_index/_doc/1
+
+
+# Chrome Google 이 포함된 문서 검색
+# my_index 가 역색인으로 저장
+# 모든 단어가 term으로 구성이 되서 역인덱싱 
+# Chrome Google 이 형식 또한 Chrome과 Google이 개별 term으로 저장
+# "Chrome Google" 로 검색해도 Chrome과 Google을 개별 term으로 검색
+# 순서는 중요하지 않고 퐇마된 데이터(doc) 검색
+# select * from my_index where message = 'Chrome' or message = 'Google';
+GET my_index/_search
+{
+  "query" : {
+    "match": {
+      "message": "Chrome Google"
+    }
+  }
+}
+
+# 데이터에 pink나 red가 들어간 값들만 출력한다.
+GET my_index/_search
+{
+  "query" : {
+    "match": {
+      "message": "pink red"
+    }
+  }
+}
+# 띄어쓰기가 없는 pinkred는 출력되지않는다. 이유는 pinkred가 하나의 term이므로 같은것으로 취급하지않는다.
+
+# 검색 옵션 추가
+# query에 term 사이에 특정 term 개수 고정 가능
+# "slop" : 1 - pink red 사이에 term이 없거나 하나인 message 데이터 검색
+GET my_index/_search
+{
+  "query" : {
+    "match_phrase": {
+      "message": {
+        "query": "pink red",
+        "slop": 1
+      }
+    }
+  }
+}
+
+# _score 속성값에 대한 정확도 rank 확인
+GET my_index/_search
+{
+  "query": {
+    "match": {
+      "message": "pink blue"
+    }
+  }
+}
+
+# 01 - should
+GET my_index/_search
+{
+  "query": {
+    "match": {
+      "message": "*pink*"
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
