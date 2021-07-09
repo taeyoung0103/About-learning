@@ -44,6 +44,23 @@ plt.figure(figsize=[5,10])
 sns.countplot(data=ti_survived, x='pclass', order=order_list2);
 
 
+# 생존자와 사망자 두 수치를 pclass별로 나눈 그래프
+sns.countplot(data=titanics, x='pclass', order=order_list, hue='survived');
+
+# 성별과 생존여부 2가지로 나눈 그래프
+order_list3 = titanics['sex'].value_counts().index.tolist()
+
+
+# 'survived', 'pclass', 'fare', 'parch', 'sibsp', 'age' 이것들이 서로에게 얼마나 영향을 미치는지 히트맵으로 분석
+# 1에 가까울수록 양의 상관관계 = 어느 한가지의 수치가 높아지면 다른것도 높아진다.
+# -1에 가까울수록 음의 상관관계 = 어느 한가지의 수치가 낮아져야 다른것이 높아진다.
+heatmap_data = titanics[['survived', 'pclass', 'fare', 'parch', 'sibsp', 'age']]
+colormap = plt.cm.RdBu
+plt.figure(figsize=(14, 12))
+plt.title('Pearson Correlation of Features', y=1.05, size=15)
+sns.heatmap(heatmap_data.astype(float).corr(), linewidths=0.1, vmax=1.0, 
+            square=True, cmap=colormap, linecolor='white', annot=True,annot_kws={"size":16})
+del heatmap_data
 
 
 
