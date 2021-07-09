@@ -1,0 +1,168 @@
+# elastic search에서는 작업한것이 페이지를 끈다고 해서 없어지지는 않는다.
+
+
+데이터 저장 : POST
+데이터 검색 : GET
+데이터 수정 : PUT
+데이터 삭제 : DELETE
+
+elasticsearch가 빠른이유
+역색인(inverted index) 개념이 도입되었기 떄문에
+일반 RDBS에는 역색인 기능이 없다.
+index - 색인, 책 목차 개념
+inverted index - 역색인, 책 맨 뒷부분의 키워드로 검색하는 개념
+
+
+Term = 추출된 각 키워드 의미(조각나듯이)
+indexing되었다 = 데이터가 저장되었다.
+
+
+
+elastic
+- elastic 에서 index는 '데이터를 저장하는 행위'를 의미한다.
+- alt + shift + 아래방향키 : 복사
+
+
+postman 에서 
+get 방식을 사용할때에는 body에서 none을 고른다음에 send해도 된다.
+마찬가지로
+delete 방식을 사용할때에도 body에서 none을 고른다음에 send해야한다.
+
+
+
+관계형 데이터베이스 		elastic search
+
+database			      	index
+
+table			          	type
+
+row			            	document ( = _doc)
+
+column		        		field   -  { "field" : "value"}
+
+schema  구조와 제약조건 		mapping  -  JSON 포멧에 적합한 구조
+
+index   빠른 검색이 가능한 옵션	  everything is indexed  -  데이터가 저장을 의미  
+
+sql			            	query DSL
+
+
+
+Querydsl 정적 타입을 이용해서 SQL과 같은 쿼리를 생성할 수 있도록 해 주는 프레임워크다. 
+
+
+elastic과 kibana 실행순서
+- /202105_lab/00.sw/04.ELKStack/elasticsearch폴더 -> bin폴더 -> 맨위 bat파일 더블클릭으로 실행
+- elastic실행후 kibana도 똑같이 실행
+- 그다음에 인터넷페이지에서 kibana창에 나타난 주소로 입장
+- 왼쪽에 목록버튼 누른다음 밑에 Dev Tools 클릭
+
+
+
+## 본격적인 elastic search 사용
+
+# 모든 데이터 출력
+GET _search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+
+# table 생성 및 데이터 저장
+POST hello_index/doc/1
+{
+  "message" : "힙합",
+  "name" : "NAS"
+}
+
+# select 와 동일한 검색
+GET hello_index/_doc/1
+
+# 데이터 수정
+PUT hello_index/_doc/1
+{
+  "message" : "유재석"
+}
+
+# pk 1, 즉 id가 1인 데이터 삭제
+DELETE hello_index/_doc/1
+
+# 삭제후 검색시 found는 false
+# 왜냐면 삭제했으니까
+GET hello_index/_doc/1
+
+# 다량의 데이터 저장시에는 index값을 사전에 설정
+POST _bulk
+{ "index" : { "_index" : "employees", "_id" : "1"} }
+{ "firstName":"John", "lastName":"Doe" }
+{ "index" : { "_index" : "employees", "_id" : "2"} }
+{ "firstName":"Anna", "lastName":"Smith" }
+{ "index" : { "_index" : "employees", "_id" : "3"} }
+{ "firstName":"Peter", "lastName":"Jones" }
+
+# _id 사전 설정없이 저장
+# 테이블이 만들어지기는 하지만, id값이 무작위로 생성되며, 생성되더라도 구분하기 어렵다.
+POST _bulk
+{ "index" : { "_index" : "employees2"} }
+{ "firstName":"John", "lastName":"Doe" }
+{ "index" : { "_index" : "employees2"} }
+{ "firstName":"Anna", "lastName":"Smith" }
+{ "index" : { "_index" : "employees2"} }
+{ "firstName":"Peter", "lastName":"Jones" }
+
+# oracle의 desc employees
+GET employees
+
+# select * from employees where lastName='Smith';
+GET employees/_search/?q=Smith
+# 위 문장은 web querry string이다. 그래서 sql과 좀 다르다.
+
+# account table 생성 및 데이터 저장
+# id가 4인경우 데이터가 누락되었음에도 다른데이터들은 정상적으로 저장이 가능하다.
+POST _bulk
+{"index":{"_index":"account","_id":"1"}}
+{"account_number":1,"balance":3926,"firstname":"Amber","lastname":"Duke","age":7,"gender":"M","address":"880 Holmes Lane","employer":"Pyrami","email":"amberduke@pyrami.com","city":"Brogan","state":"IL"}
+{"index":{"_index":"account","_id":"2"}}
+{"account_number":2,"balance":5282,"firstname":"Hattie","lastname":"Bond","age":7,"gender":"M","address":"271 Bristol Street","employer":"Netagy","email":"hattiebond@netagy.com","city":"Dante","state":"TN"}
+{"index":{"_index":"account","_id":"3"}}
+{"account_number":3,"balance":7838,"firstname":"Nanette","lastname":"Bates","age":28,"gender":"F","address":"789 Madison Street","employer":"Quility","email":"nanettebates@quility.com","city":"Nogal","state":"VA"}
+{"index":{"_index":"account","_id":"4"}}
+
+# F 값을 보유하고 있는 데이터 검색
+GET account/_search/?q=F
+
+# gender가 M인 데이터 검색
+GET account/_search/?q=M
+GET account/_search/?q=gender:M 
+# 둘다 같은 것이다.
+
+# gender가 M이고 state가 TN인 데이터 검색(두 조건 다 만족해야함)
+GET account/_search/?q=gender:M AND state:TN
+# sql과 똑같이 and, or 같은 것을 사용해야한다.
+
+# 성이 female인 데이터만 출력하는 식인데, 세로로 늘여트려놓는 방식이며, 이렇게 늘여트려놓는 방법을 많이 사용한다.
+GET account/_search
+{
+  "query": {
+    "match": {
+      "gender": "F"
+    }
+  }
+}
+
+
+
+# match - 일반적인 쿼리, OR 조건 검색, term 단위로 검색
+# match_phrase - AND 와 동일, 구문 단위로 검색, 공백을 포함해서 정확히 일치하는 문서(doc, row) 검색
+
+
+
+
+
+
+
+
+
+
