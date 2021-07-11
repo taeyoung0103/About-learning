@@ -108,9 +108,73 @@ GET my_index/_search
   }
 }
 
-#
 
+# 01 - should : 일치하는 검색결과의 점수를 더 높게 배정하는 방법 (절대적으로 필요한 것은 아니다)
+# 미세한 차이가 아닌 gap가 큰 결과치로 검색을 요할때 권장하기도 한다.
 
+# 02 - must : 참인 결과값 검색 
+
+GET my_index/_search
+{
+  "query": {
+    "match": {
+      "message": "pink blue"
+    }
+  }
+}
+
+GET my_index/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "message": "pink blue"
+          }
+        }
+      ],
+      "should": [
+        {
+          "match_phrase": {
+            "message": "pink blue"
+          }
+        }
+      ]
+    }
+  }
+}
+
+# 03 - filter : 참인 문서를 검색, 단 score 계산하지않음
+# score에 영향을 전혀 미치지 않음
+# 빠른 검색이 가능
+GET my_index/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "message": "google"
+          }
+        }
+      ],
+      "filter": [
+        {
+          "bool": {
+            "must_not": [
+              {
+                "match" : {
+                  "message": "하늘사"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
 
 
 
