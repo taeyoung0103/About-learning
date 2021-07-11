@@ -177,7 +177,45 @@ GET my_index/_search
 }
 
 
+# ES의 상태 체크하는 명령
+GET /_cluster/health
 
+# 검색시 기본적으로 10개의 doc만 검색되는 부분 해소 옵션
+GET my_index/_search
+{
+  "size" : 20
+}
+
+# https://www.online-toolz.com/langs/ko/tool-ko-text-html-entities-convertor.html 
+# 특수기호들도 알수있음
+# range query 학습
+# html 브라우저에서 entity 표기 -  &lt;  <  , &gt;  >  표기 의미하는 특수기호(entity)
+# gte[greater than or equal : 이상]
+# gt[greater than] - 초과
+# lte[Less than or equal] - 이하
+# lt[less than] - 미만
+
+
+
+GET account
+
+DELETE account
+
+PUT _bulk
+{"index":{"_index":"account","_id":"1"}}
+{"account_number":1,"balance":3926,"firstname":"Amber","lastname":"Duke","age":7,"gender":"M","address":"880 Holmes Lane","employer":"Pyrami","email":"amberduke@pyrami.com","city":"Brogan","state":"IL"}
+{"index":{"_index":"account","_id":"2"}}
+{"account_number":2,"balance":5282,"firstname":"Hattie","lastname":"Bond","age":7,"gender":"M","address":"271 Bristol Street","employer":"Netagy","email":"hattiebond@netagy.com","city":"Dante","state":"TN"}
+{"index":{"_index":"account","_id":"3"}}
+{"account_number":3,"balance":7838,"firstname":"Nanette","lastname":"Bates","age":28,"gender":"F","address":"789 Madison Street","employer":"Quility","email":"nanettebates@quility.com","city":"Nogal","state":"VA"}
+{"index":{"_index":"account","_id":"4"}}
+{"account_number":4,"balance":440,"firstname":"Dale","lastname":"Adams","age":33,"gender":"M","address":"427 Hutchinson Court","employer":"Boink","email":"daleadams@boink.com","city":"Orick","state":"MD"}
+{"index":{"_index":"account","_id":"5"}}
+{"account_number":5,"balance":1244,"firstname":"Elinor","lastname":"Ratliff","age":7,"gender":"M","address":"282 Kings Place","employer":"Scentric","email":"elinorratliff@scentric.com","city":"Ribera","state":"WA"}
+{"index":{"_index":"account","_id":"6"}}
+{"account_number":6,"balance":40540,"firstname":"Virginia","lastname":"Ayala","age":39,"gender":"F","address":"171 Putnam Avenue","employer":"Filodyne","email":"virginiaayala@filodyne.com","city":"Nicholson","state":"PA"}
+{"index":{"_index":"account","_id":"7"}}
+{"account_number":7,"balance":48082,"firstname":"Dillard","lastname":"Mcpherson","age":34,"gender":"F","address":"702 Quentin Street","employer":"Quailcom","email":"dillardmcpherson@quailcom.com","city":"Veguita","state":"IN"}
 
 
 
