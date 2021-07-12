@@ -1,0 +1,560 @@
+GET account
+
+# 데이터 검색은 무조건 이렇게
+GET account/_search
+
+# gte[greater than or equal : 이상]
+# gt[greater than] - 초과
+# lte[Less than or equal] - 이하
+# lt[less than] - 미만
+
+# age값이 20살 이상이면서 30살 미만인 사람들 검색
+GET account/_search
+{
+  "query": {
+    "range": {
+      "age": {
+        "gte": 20,
+        "lte": 30
+      }
+    }
+  }
+}
+
+
+# 문제) balance 가 4000이상인 doc 검색
+GET account/_search
+{
+  "query": {
+    "range": {
+      "balance": {
+        "gte": 4000
+        
+      }
+    }
+  }
+}
+
+
+# 기존까지는 데이터로 index(table) 직접 생성
+
+# movie_search는 구조부터 직접 생성
+# REST API 과정에서 - POST(새로 생성, 수정), PUT(수정, 생성)
+# ES에서는 POST는 수정 권장, PUT은 새로 생성시에 사용 권장
+# RDBMS의 table 생성과 동일한 작업이다.
+
+PUT movie_search
+{
+  "mappings": {
+    "properties": {
+      "movieCd": {
+        "type": "keyword"
+      },
+      "movieNm": {
+        "type": "text",
+        "analyzer": "standard"
+      },
+      "movieNmEn": {
+        "type": "text",
+        "analyzer": "standard"
+      },
+      "prdtYear": {
+        "type": "integer"
+      },
+      "openDt": {
+        "type": "integer"
+      },
+      "typeNm": {
+        "type": "keyword"
+      },
+      "prdtStatNm": {
+        "type": "keyword"
+      },
+      "nationAlt": {
+        "type": "keyword"
+      },
+      "genreAlt": {
+        "type": "keyword"
+      },
+      "repNationNm": {
+        "type": "keyword"
+      },
+      "repGenreNm": {
+        "type": "keyword"
+      },
+      "companies": {
+        "properties": {
+          "companyCd": {
+            "type": "keyword"
+          },
+          "companyNm": {
+            "type": "keyword"
+          }
+        }
+      },
+      "directors": {
+        "properties": {
+          "peopleNm": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}
+
+
+GET movie_search
+
+PUT movie_search/_doc/1
+{
+  "movieCd": "20173732",
+  "movieNm": "살아남은 아이",
+  "movieNmEn": "Last Child",
+  "prdtYear": "2017",
+  "openDt": "",
+  "typeNm": "장편",
+  "prdtStatNm": "기타",
+  "nationAlt": "한국",
+  "genreAlt": "드라마,가족",
+  "repNationNm": "한국",
+  "repGenreNm": "드라마",
+  "directors": [
+    {
+      "peopleNm": "신동석"
+    }
+  ],
+  "companies": []
+}
+
+PUT movie_search/_doc/2
+{
+  "movieCd": "20190901",
+  "movieNm": "나쁜 녀석들",
+  "movieNmEn": "bad nums",
+  "prdtYear": "2019",
+  "openDt": "",
+  "typeNm": "장편",
+  "prdtStatNm": "기타",
+  "nationAlt": "한국",
+  "genreAlt": "영화,조폭",
+  "repNationNm": "한국",
+  "repGenreNm": "영화",
+  "directors": [
+    {
+      "peopleNm": "마동석"
+    }
+  ],
+  "companies": []
+}
+
+
+PUT movie_search/_doc/3
+{
+  "movieCd": "20190601",
+  "movieNm": "기생충",
+  "movieNmEn": "parasite",
+  "prdtYear": "2018",
+  "openDt": "2019",
+  "typeNm": "장편",
+  "prdtStatNm": "기타",
+  "nationAlt": "한국",
+  "genreAlt": "영화,사회,가족",
+  "repNationNm": "한국",
+  "repGenreNm": "영화",
+  "directors": [
+    {
+      "peopleNm": "송강호"
+    }
+  ],
+  "companies": []
+}
+
+
+PUT movie_search/_doc/4
+{
+  "movieCd": "20180789",
+  "movieNm": "한 솔로: 스타워즈 스토리",
+  "movieNmEn": "Solo: A Star Wars Story",
+  "prdtYear": "2018",
+  "openDt": "",
+  "typeNm": "장편",
+  "prdtStatNm": "기타",
+  "nationAlt": "미국",
+  "genreAlt": "",
+  "repNationNm": "미국",
+  "repGenreNm": "",
+  "directors": [
+    {
+      "peopleNm": "론 하워드"
+    }
+  ],
+  "companys": []
+}
+
+
+
+PUT movie_search/_doc/5
+{
+  "movieCd": "20177478",
+  "movieNm": "어벤져스: 인피니티 워",
+  "movieNmEn": "Avengers: Infinity War",
+  "prdtYear": "2018",
+  "openDt": "",
+  "typeNm": "장편",
+  "prdtStatNm": "개봉예정",
+  "nationAlt": "미국",
+  "genreAlt": [
+    "액션",
+    "어드벤처",
+    "판타지",
+    "SF"
+  ],
+  "repNationNm": "미국",
+  "repGenreNm": "액션",
+  "directors": [
+    {
+      "peopleNm": "안소니 루소"
+    },
+    {
+      "peopleNm": "조 루소"
+    }
+  ],
+  "companys": []
+}
+
+PUT movie_search/_doc/6
+{
+  "movieCd": "20176848",
+  "movieNm": "데드풀2",
+  "movieNmEn": "DEADPOOL2",
+  "prdtYear": "2018",
+  "openDt": "",
+  "typeNm": "장편",
+  "prdtStatNm": "개봉예정",
+  "nationAlt": "미국",
+  "genreAlt": [
+    "액션",
+    "어드벤처",
+    "코미디",
+    "SF"
+  ],
+  "repNationNm": "미국",
+  "repGenreNm": "액션",
+  "directors": [
+    {
+      "peopleNm": "데이빗 레이치"
+    }
+  ],
+  "companys": []
+}
+
+PUT movie_search/_doc/7
+{
+  "movieCd": "20189661",
+  "movieNm": "2018 한국영화아카데미 34기 졸업영화제 섹션A",
+  "movieNmEn": "",
+  "prdtYear": "2018",
+  "openDt": "",
+  "typeNm": "옴니버스",
+  "prdtStatNm": "기타",
+  "nationAlt": "한국",
+  "genreAlt": [
+    "기타"
+  ],
+  "repNationNm": "한국",
+  "repGenreNm": "기타",
+  "directors": [],
+  "companys": []
+}
+
+
+PUT movie_search/_doc/8
+{
+  "movieCd": "20180482",
+  "movieNm": "잊혀진 이야기\t",
+  "movieNmEn": "Forgotten Saga",
+  "prdtYear": "2018",
+  "openDt": "",
+  "typeNm": "옴니버스",
+  "prdtStatNm": "기타",
+  "nationAlt": "한국",
+  "genreAlt": [
+    "기타"
+  ],
+  "repNationNm": "한국",
+  "repGenreNm": "기타",
+  "directors": [],
+  "companys": []
+}
+
+
+PUT movie_search/_doc/9
+{
+  "movieCd": "20180566",
+  "movieNm": "2월 수요단편극장- 김태용 감독 특별전",
+  "movieNmEn": "",
+  "prdtYear": "2018",
+  "openDt": "",
+  "typeNm": "옴니버스",
+  "prdtStatNm": "기타",
+  "nationAlt": "한국",
+  "genreAlt": [
+    "기타"
+  ],
+  "repNationNm": "한국",
+  "repGenreNm": "기타",
+  "directors": [
+    {
+      "peopleNm": "김태용"
+    }
+  ],
+  "companys": []
+}
+
+
+PUT movie_search/_doc/10
+{
+  "movieCd": "20180501",
+  "movieNm": "관계의 의미",
+  "movieNmEn": "",
+  "prdtYear": "2018",
+  "openDt": "",
+  "typeNm": "옴니버스",
+  "prdtStatNm": "기타",
+  "nationAlt": "한국",
+  "genreAlt": [
+    "기타"
+  ],
+  "repNationNm": "한국",
+  "repGenreNm": "기타",
+  "directors": [],
+  "companys": []
+}
+
+
+PUT movie_search/_doc/11
+{
+  "movieCd": "20178395",
+  "movieNm": "12 솔져스",
+  "movieNmEn": "12 Strong",
+  "prdtYear": "2018",
+  "openDt": "20180131",
+  "typeNm": "장편",
+  "prdtStatNm": "개봉예정",
+  "nationAlt": "미국",
+  "genreAlt": [
+    "액션",
+    "드라마",
+    "전쟁"
+  ],
+  "repNationNm": "미국",
+  "repGenreNm": "액션",
+  "directors": [
+    {
+      "peopleNm": "니콜라이 퓰시"
+    }
+  ],
+  "companys": []
+}
+
+
+PUT movie_search/_doc/12
+{
+  "movieCd": "20137706",
+  "movieNm": "패밀리",
+  "movieNmEn": "Family",
+  "prdtYear": "2012",
+  "openDt": "",
+  "typeNm": "단편",
+  "prdtStatNm": "기타",
+  "nationAlt": "한국",
+  "genreAlt": [
+    "드라마"
+  ],
+  "repNationNm": "한국",
+  "repGenreNm": "드라마",
+  "directors": [
+    {
+      "peopleNm": "정욱"
+    }
+  ],
+  "companys": []
+}
+
+
+
+PUT movie_search/_doc/13
+{
+  "movieCd": "20155408",
+  "movieNm": "가족",
+  "movieNmEn": "Family",
+  "prdtYear": "2015",
+  "openDt": "",
+  "typeNm": "단편",
+  "prdtStatNm": "기타",
+  "nationAlt": "한국",
+  "genreAlt": [
+    "드라마"
+  ],
+  "repNationNm": "한국",
+  "repGenreNm": "드라마",
+  "directors": [
+    {
+      "peopleNm": "정승현"
+    }
+  ],
+  "companys": []
+}
+
+
+PUT movie_search/_doc/14
+{
+  "movieCd": "20137027",
+  "movieNm": "패밀리 ",
+  "movieNmEn": "family",
+  "prdtYear": "2011",
+  "openDt": "",
+  "typeNm": "단편",
+  "prdtStatNm": "기타",
+  "nationAlt": "한국",
+  "genreAlt": [
+    "애니메이션"
+  ],
+  "repNationNm": "한국",
+  "repGenreNm": "애니메이션",
+  "directors": [],
+  "companys": []
+}
+
+
+
+PUT movie_search/_doc/15
+{
+  "movieCd": "20127686",
+  "movieNm": "가족",
+  "movieNmEn": "Family",
+  "prdtYear": "1976",
+  "openDt": "",
+  "typeNm": "장편",
+  "prdtStatNm": "기타",
+  "nationAlt": "한국",
+  "genreAlt": [
+    "멜로",
+    "로맨스"
+  ],
+  "repNationNm": "한국",
+  "repGenreNm": "멜로/로맨스",
+  "directors": [
+    {
+      "peopleNm": "이혁수"
+    }
+  ],
+  "companys": [
+    {
+      "companyCd": "20101024",
+      "companyNm": "대영영화주식회사"
+    }
+  ]
+}
+
+
+PUT movie_search/_doc/16
+{
+  "movieCd": "20138634",
+  "movieNm": "Family",
+  "movieNmEn": "Family",
+  "prdtYear": "2012",
+  "openDt": "",
+  "typeNm": "단편",
+  "prdtStatNm": "기타",
+  "nationAlt": "한국",
+  "genreAlt": "",
+  "repNationNm": "한국",
+  "repGenreNm": "",
+  "directors": [],
+  "companys": []
+}
+
+PUT movie_search/_doc/17
+{
+  "movieCd": "20174169",
+  "movieNm": "기묘한 가족",
+  "movieNmEn": "",
+  "prdtYear": "2017",
+  "openDt": "",
+  "typeNm": "장편",
+  "prdtStatNm": "후반작업",
+  "nationAlt": "한국",
+  "genreAlt": [
+    "코미디"
+  ],
+  "repNationNm": "한국",
+  "repGenreNm": "코미디",
+  "directors": [
+    {
+      "peopleNm": "이민재"
+    }
+  ],
+  "companys": [
+    {
+      "companyCd": "20142551",
+      "companyNm": "씨네주 유한회사"
+    }
+  ]
+}
+
+
+PUT movie_search/_doc/18
+{
+  "movieCd": "20020233",
+  "movieNm": "패밀리",
+  "movieNmEn": "Family",
+  "prdtYear": "2002",
+  "openDt": "20020822",
+  "typeNm": "장편",
+  "prdtStatNm": "개봉",
+  "nationAlt": "한국",
+  "genreAlt": [
+    "코미디"
+  ],
+  "repNationNm": "한국",
+  "repGenreNm": "코미디",
+  "directors": [
+    {
+      "peopleNm": "최진원"
+    }
+  ],
+  "companys": [
+    {
+      "companyCd": "20100217",
+      "companyNm": "(주)배우마을"
+    }
+  ]
+}
+
+
+
+GET movie_search
+
+GET movie_search/_search
+{
+  "size": 20,
+  "query": {
+    "match_all": {}
+  }
+}
+
+
+# 문제) "기묘한 가족"만 찾기
+# movieNm field의 type은? text이다.
+# 기묘한 가족 -> text라서 기묘한, 가족 2개를 term으로 구분해서 저장
+# 결론 : text 타입 따라서 기묘한 또는 가족 검색 성립
+GET movie_search/_search
+{
+  "query": {
+    "match": {
+      "movieNm": "기묘한 가족"
+    }
+  }
+}
