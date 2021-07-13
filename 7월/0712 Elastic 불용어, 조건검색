@@ -1,0 +1,493 @@
+# analyze API 학습
+
+# text 라는 속성에 부여된 데이터값을 whitespace 기준으로 분리
+
+# 분리된 term을 소문자 -> 불용어제거 -> ~s, ~ing등이 포함된 문구로 검색해도 검색되게 해주는 작업(text 분석)
+
+# 분석기 이해를 위한 test 코드
+GET _analyze
+{
+  "text": "The Articles and Tutorials section features in-depth documents designed to give practical help to developers working with AWS",
+  "tokenizer": "whitespace",
+  "filter": [
+    "lowercase",
+    "stop",
+    "snowball"
+  ]
+}
+
+# 여백을 기준으로 나뉘어진 term들을 모두다 소문자로 변환
+GET _analyze
+{
+  "text": "The Articles and Tutorials section features in-depth documents designed to give practical help to developers working with AWS",
+  "tokenizer": "whitespace",
+  "filter": [
+    "lowercase"
+  ]
+}
+
+# 불용어(stop word)는 분석에 큰 의미가 없는 단어를 의미한다.
+# the는 불용어로 간주
+# The는 불용어로 간주하지 않음
+GET _analyze
+{
+  "text": "The Articles and the Tutorials section features in-depth documents designed to give practical help to developers working with AWS",
+  "tokenizer": "whitespace",
+  "filter": [
+    "stop"
+  ]
+}
+
+# The Tytorials 작업시 The는 불용어로 처리하지않음
+# the Tutorials 작업시 the는 불용어로 간주한다.
+GET _analyze
+{
+  "text": "The Articles and The Tutorials section features in-depth documents designed to give practical help to developers working with AWS",
+  "tokenizer": "whitespace",
+  "filter": [
+    "stop"
+  ]
+}
+
+# 소문자로 변환 -> 불용어 제거
+GET _analyze
+{
+  "text": "The Articles and The Tutorials section features in-depth documents designed to give practical help to developers working with AWS",
+  "tokenizer": "whitespace",
+  "filter": [
+    "lowercase",
+    "stop"
+  ]
+}
+
+# 불용어 제거 -> 소문자로 변환
+GET _analyze
+{
+  "text": "The Articles and The Tutorials section features in-depth documents designed to give practical help to developers working with AWS",
+  "tokenizer": "whitespace",
+  "filter": [
+    "stop",
+    "lowercase"
+  ]
+}
+
+# 검색시 기본어로 변환되어 검색되는 기능
+# Articles -> Articl
+# Tutorials -> Tutori
+# practical -> practic
+GET _analyze
+{
+  "text": "The Articles and The Tutorials section features in-depth documents designed to give practical help to developers working with AWS",
+  "tokenizer": "whitespace",
+  "filter": [
+    "snowball"
+  ]
+}
+
+# index에 분석기 적용
+
+# my_index라는게 존재할 경우 삭제
+DELETE my_index
+
+# my_index 생성
+# RDBMS 관점 : my_index라는 table에 message라는 컬럼 생성, 컬럼 타입은 문자열
+# ES : my_index라는 index에 message라는 field생성, field타입은 term 기준으로 관리되는 문자열
+PUT my_index
+{
+  "mappings": {
+    "properties": {
+      "message": {
+        "type": "text",
+        "analyzer": "snowball"
+      }
+    }
+  }
+}
+
+# my_index 데이터 저장
+# id가 1인 doc 새로 생성(저장)
+PUT my_index3/_doc/1
+{
+ "message": "If you parse the JSON string with a JavaScript program, you can access the data as an object" 
+}
+
+GET my_index/_search
+
+# programming 이라는 단어로 해당 문서 검색
+GET my_index/_search
+{
+  "query": {
+    "match": {
+      "message": "programming"
+    }
+  }
+}
+
+# parses로 검색
+GET my_index/_search
+{
+  "query": {
+    "match": {
+      "message": "parses"
+    }
+  }
+}
+
+# 사용자 정의 analyzer 개발
+# 소문자, 불용어 기준으로 개발
+
+DELETE my_index
+
+# my_index에서 사용될 분석기만 사용자정의로 선언, field 생성 및 셋팅 
+
+# 소문자화 하는 분석기와 불용어 제거하는 분석기 개별생성
+# 분석기들을 index 생성시 적용
+# 예시 : 다수의 field가 존재할경우 동일한 분석기를 사용
+# (재사용) 해야 할 경우 권장하는 구조
+PUT my_index
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "analyzer": {
+          "my1":{
+            "type":"custom",
+            "tokenizer":"whitespace",
+            "filter":[
+              "lowercase"
+              ]
+          },
+          "my2":{
+            "type":"custom",
+            "tokenizer":"whitespace",
+            "filter":[
+              "stop"
+              ]
+          },
+          "my3":{
+            "type":"custom",
+            "tokenizer":"whitespace",
+            "filter":[
+              "snowball"
+              ]
+          }
+        }
+      }
+    }
+  }
+}
+
+# 데이터검색 (search)
+GET my_index/_search
+
+# 구조 확인 (mapping)
+GET my_index/_mapping
+
+
+# my_index에 실데이터 를 저장하는 문법
+# id가 1이면서 message field에 데이터 새로 저장
+PUT my_index3/_doc/1
+{
+ "message": "If you parse the JSON string with a JavaScript program, you can access the data as an object"
+}
+
+
+GET my_index/_analyze
+{
+  "analyzer": "my_c1",
+  "text": [
+    "The Articles and Tutorials section features in-depth documents designed to give practical help to developers working with AWS"
+  ]
+}
+
+# id값이 1인 데이터만 검색 
+GET my_index/_doc/1
+# snowball이 적용된 상태에서 parses로 검색시 parse가 존재할 경우 자동 검색
+# 적용이 안되는 상태
+# ? parses로 검색시에도 parse 즉 snowball이 적용되게 하기 위한 마무리 
+# 기존 코드 수정(?)해서 성공 
+GET my_index/_search
+{
+  "query": {
+    "match": {
+      "message": "parses"
+    }
+  }
+}
+
+
+DELETE my_index
+
+PUT my_index
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "analyzer": {
+          "my1":{
+            "type":"custom",
+            "tokenizer":"whitespace",
+            "filter":[
+              "lowercase"
+              ]
+          },
+          "my2":{
+            "type":"custom",
+            "tokenizer":"whitespace",
+            "filter":[
+              "stop"
+              ]
+          },
+          "my3":{
+            "type":"custom",
+            "tokenizer":"whitespace",
+            "filter":[
+              "snowball"
+              ]
+          }
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "message":{
+        "type": "text",
+        "analyzer":"my3"
+      }
+    }
+  }
+}
+
+# 데이터저장
+PUT my_index/_doc/1
+{
+  "message":"If you parse the JSON string with a JavaScript program, you can access the data as an object"
+}
+
+# my_index가 보유한 모든 정보 검색
+GET my_index/_search
+
+# message field에 parse가 포함된 데이터 (doc) 검색
+GET my_index/_search
+{
+  "query": {
+    "match": {
+      "message": "parse"
+    }
+  }
+}
+
+GET my_index/_search
+{
+  "query": {
+    "match": {
+      "message": "parses"
+    }
+  }
+}
+
+# 집계
+PUT my_stations/_bulk
+{"index": {"_id": "1"}}
+{"date": "2020-06-01", "line": "1호선", "station": "종각", "passangers": 2314}
+{"index": {"_id": "2"}}
+{"date": "2020-06-01", "line": "2호선", "station": "강남", "passangers": 5412}
+{"index": {"_id": "3"}}
+{"date": "2020-07-10", "line": "2호선", "station": "강남", "passangers": 6221}
+{"index": {"_id": "4"}}
+{"date": "2020-07-15", "line": "2호선", "station": "강남", "passangers": 6478}
+{"index": {"_id": "5"}}
+{"date": "2020-08-07", "line": "2호선", "station": "강남", "passangers": 5821}
+{"index": {"_id": "6"}}
+{"date": "2020-08-18", "line": "2호선", "station": "강남", "passangers": 5724}
+{"index": {"_id": "7"}}
+{"date": "2020-09-02", "line": "2호선", "station": "신촌", "passangers": 3912}
+{"index": {"_id": "8"}}
+{"date": "2020-09-11", "line": "3호선", "station": "양재", "passangers": 4121}
+{"index": {"_id": "9"}}
+{"date": "2020-09-20", "line": "3호선", "station": "홍제", "passangers": 1021}
+{"index": {"_id": "10"}}
+{"date": "2020-10-01", "line": "3호선", "station": "불광", "passangers": 971}
+
+
+GET my_stations/_mapping
+
+GET my_stations/_search
+
+# doc중에 id값이 2인 데이터만 검색요청
+GET my_stations/_doc/2
+
+# 강남 이용객 합 집계
+# 모든 강남 doc와 집계결과가 검색되었다.
+# aggs : 나오는 값 말고 그 값들의 합계를 뽑아내겠다.
+# cardinality : 개수를 세보겠다.
+GET my_stations/_search
+{
+  "query": {
+    "match": {
+      "station": "강남"
+    }
+  },
+  "aggs": {
+    "sum_all":{
+      "sum":{
+        "field":"passangers"
+      }
+    }
+  }
+}
+
+# size : 0 - 집계결과만 볼수있도록하는것
+GET my_stations/_search
+{
+  "query": {
+    "match": {
+      "station": "강남"
+    }
+  },
+  "size":0,
+  "aggs": {
+    "sum_all":{
+      "sum":{
+        "field":"passangers"
+      }
+    }
+  }
+}
+
+# 승객수를 기준으로 count, min, max, avg, sum 과 같은 값들을 stats로 구할수있다.
+GET my_stations/_search
+{
+  "query": {
+    "match": {
+      "station": "강남"
+    }
+  },
+  "size":0,
+  "aggs": {
+    "p_s":{
+      "stats":{
+        "field":"passangers"
+      }
+    }
+  }
+}
+
+# 문제) 강남 이용객에 한해서만 기초 통계 집계 검색
+GET my_stations/_search
+{
+  "size":0,
+  "query": {
+    "match": {
+      "station": "강남"
+    }
+  },
+  "aggs": {
+    "p_s":{ 
+      "stats":{
+        "field":"passangers"
+      }
+    }
+  }
+}
+
+# 호선까지 개수 카운팅
+# 유니크한 데이터 검색시에는 term으로 구분되어 있는 데이터값을 keyword로 간주해서 처리
+# 1호선, 2호선, 3호선 즉 각각의 단어들이 중복으로 인지되지않게 태그 처럼 인식된 구조
+# unique_line : 임의로 정한 이름이다. 나머지 size, aggs, cardinality, field는 함수이다.
+# cardinality : 전체 행에 대한 특정 컬럼의 중복 수치를 나타내는 지표 또는 유니크한 데이터 개수 카운팅 2가지로 사용된다.
+GET my_stations/_search
+{
+  "size":0,
+  "aggs":{
+    "unique_line":{
+      "cardinality": {
+        "field": "line"
+      }
+    }
+  }
+}
+
+GET my_stations/_mapping
+
+# line개수가 몇개인지 알수있도록하는것(중복제외)
+GET my_stations/_search
+{
+  "size":0,
+  "aggs":{
+    "unique_line":{
+      "cardinality": {
+        "field": "line.keyword"
+      }
+    }
+  }
+}
+
+
+# 역 개수가 몇개인지 알수있도록 하는 것(중복제외)
+GET my_stations/_search
+{
+  "size":0,
+  "aggs":{
+    "unique_line":{
+      "cardinality": {
+        "field": "station.keyword"
+      }
+    }
+  }
+}
+
+# 07-12일 미션) bank index를 기반으로 3가지 이상의 집계문장개발하기
+# 제출포멧 - 이름.es 
+
+
+# 국민은행을 사용하는 고객들의 통계자료
+GET bank/_search
+{
+  "query": {
+    "match": {
+      "bank": "국민은행"
+    }
+  },
+  "size": 0, 
+  "aggs": {
+    "b_3": {
+      "stats": {
+        "field": "customers"
+      }
+    }
+  }
+}
+
+# 각 은행별 고객수의 합
+GET bank/_search
+{
+  "size": 0,
+  "aggs": {
+    "group_by_bank": {
+      "terms": {
+        "field": "bank.keyword"
+      },
+      "aggs":{
+        "sum_customers":{
+          "sum": {
+            "field": "customers"
+          }
+        }
+      }
+    }
+  }
+}
+
+# 고객 수가 3000 초과인 지점들
+GET bank/_search
+{
+ "query": {
+    "range": {
+      "customers": {
+        "gte": 3000
+      }
+    }
+  }
+}
