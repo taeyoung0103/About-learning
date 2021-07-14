@@ -1,0 +1,87 @@
+# python 연동
+
+GET test-index
+
+GET test-index/_mapping
+GET test-index/_doc/1
+
+GET test-index/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+
+
+DELETE test-index
+
+PUT test-index/_doc/1
+{
+  "author": "kimchy",
+  "text": "Elasticsearch: cool. bonsai cool.",
+  "timestamp": "2021-07-13"
+}
+
+GET bank/_search
+{
+  "query": {
+    "match": {
+      "bank": "국민은행"
+    }
+  },
+  "size":0,
+  "aggs":{
+    "b_1":{
+      "terms": {
+        "field":"branch.keyword"
+      }
+    }
+  }
+}
+
+GET bank/_search
+{
+  "query": {
+    "match": {
+      "bank": "국민은행"
+    }
+  },
+  "size":0,
+  
+  "b_1":{
+    "terms": {
+      "field":"branch.keyword"
+    }
+  }
+}
+
+GET _analyze
+{
+  "tokenizer": "nori_tokenizer",
+  "text":"뒷동산에 감나무 심기"
+}
+
+PUT nori_sample
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "tokenizer": {
+          "nori_user_dict": {
+            "type": "nori_tokenizer",
+            "decompound_mode": "mixed",
+            "discard_punctuation": "false",
+            "user_dictionary": "userdict_ko.txt"
+          }
+        },
+        "analyzer": {
+          "my_analyzer": {
+            "type": "custom",
+            "tokenizer": "nori_user_dict"
+          }
+        }
+      }
+    }
+  }
+}
