@@ -1,0 +1,203 @@
+# standard 기본 여백을 구분자로 해서 토큰 분해
+# utf-8 기반의 문자들은 인식 
+GET _analyze
+{
+  "tokenizer": "standard",
+  "text": "뒷동산에 감나무 심기"
+}
+
+
+# nori 플러그인 설치후에 실행되는 문장 
+# elasticsearch-plugin install analysis-nori 설치후 재 실행 
+
+DELETE nori_sample
+
+PUT nori_sample
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "tokenizer": {
+          "nori_user_dict": {
+            "type": "nori_tokenizer",
+            "decompound_mode": "mixed",
+            "discard_punctuation": "false",
+            "user_dictionary": "userdict_ko.txt"
+          }
+        },
+        "analyzer": {
+          "my_analyzer": {
+            "type": "custom",
+            "tokenizer": "nori_user_dict"
+          }
+        }
+      }
+    }
+  }
+}
+GET nori_sample/_analyze
+{
+  "analyzer": "my_analyzer",
+  "text": "세종시"
+}
+# 뒷/동산/에/감/나무/심기
+GET _analyze
+{
+  "tokenizer": "nori_tokenizer",
+  "text": "뒷동산에 감나무 심기"
+}
+# 여백 기준: 뒷동산에/감나무/심기
+GET _analyze
+{
+  "tokenizer": "standard",
+  "text": "뒷동산에 감나무 심기"
+}
+# 뒷/동산/에/감/나무/심기
+GET _analyze
+{
+  "tokenizer": "nori_tokenizer",
+  "text": "뒷동산에 @ 감나무 심기"
+}
+# 여백 기준: 뒷동산에/감나무/심기
+GET _analyze
+{
+  "tokenizer": "standard",
+  "text": "뒷동산에 @ 감나무 심기"
+}
+GET _analyze
+{
+  "tokenizer": "whitespace",
+  "text": "뒷동산에 @ 감나무 심기"
+}
+DELETE my_nori
+# index에 사전 추가 작업
+# 사전에 등록된 복합단어를 하나의 단어로 보고 형태소 분석하기
+PUT my_nori
+{
+  "settings": {
+    "analysis": {
+      "tokenizer": {
+        "my_n_t": {
+          "type": "nori_tokenizer",
+          "user_dictionary_rules":[
+            "뒷동산"
+          ]
+        }
+      }
+    }
+  }
+}
+GET my_nori/_analyze
+{
+  "tokenizer": "my_n_t",
+  "text": "뒷동산에 @ 감나무 심기"
+}
+# nori 토크나이저 편집
+DELETE my_nori
+PUT my_nori
+{
+  "settings": {
+    "analysis": {
+      "tokenizer": {
+        "nori_none":{
+          "type": "nori_tokenizer",
+          "decompound_mode": "none"
+        },
+        "nori_discard":{
+          "type": "nori_tokenizer",
+          "decompound_mode": "discard"
+        },
+        "nori_mixed":{
+          "type": "nori_tokenizer",
+          "decompound_mode": "mixed"
+        }
+      }
+    }
+  }
+}
+# 감나무
+GET my_nori/_analyze
+{
+  "tokenizer": "nori_none",
+  "text" : "감나무"
+}
+# 감/나무
+GET my_nori/_analyze
+{
+  "tokenizer": "nori_discard",
+  "text" : "감나무"
+}
+# 감나무/감/나무
+GET my_nori/_analyze
+{
+  "tokenizer": "nori_mixed",
+  "text" : "감나무"
+}
+# 뒷동산에 감나무 심기
+# 감나무
+# 뒷동산/에/감나무/심기
+GET my_nori/_analyze
+{
+  "tokenizer": "nori_none",
+  "text" : "뒷동산에 감나무 심기"
+}
+# 뒷/동산/에/감/나무/심기
+# 감/나무
+GET my_nori/_analyze
+{
+  "tokenizer": "nori_discard",
+  "text" : "뒷동산에 감나무 심기"
+}
+# 뒷동산/뒷/동산/에/감나무/감/나무/심기
+# 감나무/감/나무
+GET my_nori/_analyze
+{
+  "tokenizer": "nori_mixed",
+  "text" : "뒷동산에 감나무 심기"
+}
+
+
+
+# 사용자 정의 사전 추가
+# 위치 : ES/config/*_ko.txt
+# tokenizer와 analyzer 동시 설정
+DELETE my_nori
+
+PUT my_nori
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "tokenizer": {
+          "nori_user_dict": {
+            "type": "nori_tokenizer",
+            "decompound_mode": "none",
+            "user_dictionary": "userdict_ko.txt"
+          }
+          
+        },
+        "analyzer": {
+          "nori_my_token": {
+            "type": "custom",
+            "tokenizer": "nori_user_dict"
+          }
+        }
+      }
+    }
+  }
+}
+# "decompound_mode": "none" = 
+# 복합명사를 분리하지않는다.
+
+# 엘지전자 입력시에 tokenizer 에 mixed 라고 해도 엘지전자 는 휘발이 되고 "엘지", "전자"로만 검색
+# 해결책 - 사용자 정의 사전에 엘지전자 내용 추가
+# 추가하는 방식 : 엘지전자 엘지 전자  형식
+# 단, 혹여 복합명사 인식이 잘 안 될 경우에 한번더 복합명사 적용 권장 하단 철럼
+# 사용자 정의 사전에 추가한 문구
+# 엘지전자,
+# 엘지전자 엘지 전자
+GET my_nori/_analyze
+{
+  "analyzer": "nori_my_token",
+  "text": "엘지전자"
+}
