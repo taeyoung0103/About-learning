@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <button onclick="dataReq()">클릭</button>
+
+    <br><hr><br>
+    
+    <!-- 
+        tag의 속성으로 css를 적용하는 inline 방식
+        tag가 존재하나 안 보이게 하는 방식
+        단 display: block인 경우 tag가 보임 
+
+        style="display: none;
+    -->
+    
+    <table id="t" style="display: none;">
+        
+        <!-- <tr><th>key</th><th>doc_count</th></tr> -->
+         
+        <div id="dataview">
+            
+        </div>
+    </table>
+
+    <script>
+        /* 
+        1단계 : 응답 받은 데이터를 json 포멧의 객체로 변환
+        2단계 : key로 데이터들을 뽑아서 div tag에 html의 table로 생성
+        */
+        function dataReq() {
+            const xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    data = this.responseText;
+                    // app.py에서 받는 데이터들을 data라는 변수에 집어넣는다.
+                    data = "["+data+"]";
+                    // dict식으로 받아오기위해서 - 안그러면 에러가 나온다. dict형식으로 다시 저장
+                    data = eval("(" + data + ")")
+                    console.log(data);
+
+                    // table 스타일을 block 값으로 수정
+                    // style="display: none;"
+                    document.getElementById("t").style.display = "block";
+                    // - 이 긴거는 html안에서 작성하고 있는 문서 의미
+
+                    // table row 생성
+                    tb = "<table border='1' style='width : 7%'>"+ "<tr><th>key</th><th>doc_count</th></tr>" ;
+                    // 반복문을 돌리는데, i를 1씩 증가한다. 차례로 data길이보다 적은수만큼 뽑아낸다.
+                    for(i=0; i < data.length; i++){
+                        tb = tb + "<tr><td>"+ data[i].key + "</td><td>" + data[i].doc_count + "</td></tr>"
+                    }
+                    
+                    document.getElementById("dataview").innerHTML = tb + "</table>";
+                }
+            };
+            xhttp.open("GET", "dataget");
+            xhttp.send();
+        }
+    </script>
+
+</body>
+
+</html>
