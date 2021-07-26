@@ -72,7 +72,7 @@ print(a2.dtype) #실수의 기본형: float64, 정수의 기본형: int32
 -> float64
 
 
-
+->
 
 
 
