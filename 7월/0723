@@ -34,5 +34,45 @@
 이미지 - (개수-50, 길이-64, 넓이-64) -> 길이와 넓이가 64인것이 50개가 있는것
 
 
+넘파이 배열(ndarray)
+- n-dimension array => ndarray
+- Numpy에서 제공하는 N 차원 배열 객체
+- 같은 타입의 값들만 가질 수 있다.
+- 빠르고 메모리를 효율적으로 사용하며 벡터 연산과 브로드캐스팅 기능을 제공한다.
+
+차원 (dimension)
+- Vector에서 차원 : 원소의 개수
+- 넘파이 배열에서 차원 : 축의 개수
+
+
+______________________________________________
+
+# numpy  모듈을 import => 별칭은 관례적으로 np
+import numpy as np
+
+a1 = np.array([1,2,3]) # 기존 자료구조(array 행태)를 이용해 ndarray 생성
+print(a1)
+a1
+-> array([1, 2, 3])
+
+print(a1)
+print(type(a1))
+print(a1.dtype) #배열의 타입
+print(a1.shape) #배열의 shape(형태 - 각축의 원소 수)
+-> [1 2 3]
+-> <class 'numpy.ndarray'>
+-> int32
+-> (3,)
+
+a2 = np.array([1.1, 2.2, 3.3])
+print(a2)
+-> [1.1 2.2 3.3]
+
+print(a2.dtype) #실수의 기본형: float64, 정수의 기본형: int32
+-> float64
+
+
+
+
 
 
