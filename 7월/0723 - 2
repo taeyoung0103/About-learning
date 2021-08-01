@@ -1,0 +1,11 @@
+------------------------------------------------------------------------------
+
+linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None)
+- 시작과 끝을 균등하게 나눈 값들을 가지는 배열을 생성
+-> API
+-> start : 시작값
+-> stop : 종료값
+-> num : 나눌 개수. 기본-50, 양수 여야한다.
+-> endpoint : stop을 포함시킬 것인지 여부. 기본 True
+-> retstep : 생성된 배열 샘플과 함께 간격(step)도 리턴할지 여부. True일경우 간격도 리턴(sample, step) => 튜플로 받는다.
+-> dtype : 데이터 타입
