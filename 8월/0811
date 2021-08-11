@@ -1,0 +1,71 @@
+
+
+과대적합(Overfitting )
+    1.0.1  일반화 (Generalization)
+        모델이 새로운 데이터셋(테스트 데이터)에 대하여 정확히 예측하면 이것을 (훈련데이터에서 테스트데이터로) 일반화 되었다고 말한다.
+        모델이 훈련 데이터로 평가한 결과와 테스트 데이터로 평가한 결과의 차이가 거의 없고 좋은 평가지표를 보여준다.
+    1.0.2  과대적합 (Overfitting)
+        모델이 훈련 데이터에 대한 예측성능은 너무 좋지만 일반성이 떨어져 새로운 데이터(테스트 데이터)에 대해선 성능이 좋지 않은 것을 Overfitting이라고 한다.
+        이는 모델이 훈련 데이터 세트의 특징을 너무 맞춰서 학습 되었기 때문에 일반화 되지 않아 새로운 데이터셋(테스트세트)에 대한 예측 성능이 떨져 발생한다.
+    1.0.3  과소적합 (Underfitting)
+        모델이 훈련 데이터과 테스트 데이터셋 모두에서 성능이 안좋은 것을 말한다.
+        모델이 너무 간단하여 훈련 데이터에 대해 충분히 학습하지 못해 데이터셋의 패턴들을 다 찾아내지 못해서 발생한다.
+        
+
+Overfitting(과대적합)의 원인
+    학습 데이터 양에 비해 모델이 너무 복잡한 경우 발생.
+      모델을 단순하게 만든다.
+        데이터의 양을 늘린다.
+          시간과 돈이 들기 때문에 현실적으로 어렵다.
+        각 모델은 규제와 관련된 하이퍼파라미터를 제공하는데 이것을 조절한다.
+
+
+위스콘신 유방암 데이터셋
+
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+
+data = load_breast_cancer()
+X, y = data['data'], data['target']
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=0)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
