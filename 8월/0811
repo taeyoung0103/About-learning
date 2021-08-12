@@ -29,35 +29,321 @@ data = load_breast_cancer()
 X, y = data['data'], data['target']
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=0)
+    # X_train(학습), X_test(테스트), y_train, y_test 각각의 데이터들을 나눠가진다.
+
+-----
+
+from sklearn.tree import DecisionTreeClassifier
+
+# tree = DecisionTreeClassifier(random_state=0)                 # max_depth가 0인 기본값
+# tree = DecisionTreeClassifier(max_depth=1, random_state=0)    # max_depth가 1인 값
+# tree = DecisionTreeClassifier(max_depth=3, random_state=0)    # max_depth가 3인 값
+각각 원하는 값구할때 앞에 # 삭제하고 실행하면 된다.
+
+tree.fit(X_train, y_train)
+
+pred_train = tree.predict(X_train)      # 예측 데이터
+pred_test = tree.predict(X_test)
+
+-----
+
+# 정확도 
+from sklearn.metrics import accuracy_score
+print("max_depth: None")
+print("Train 정확도 : {}, Test 정확도 : {}".format(accuracy_score(y_train, pred_train), accuracy_score(y_test, pred_test)))
+-> max_depth: 1
+    Train 정확도 : 0.9765258215962441, Test 정확도 : 0.916083916083916
+
+
+# 정확도  : max_depth:None과 비교해서 underfitting
+from sklearn.metrics import accuracy_score
+print("max_depth: 1")
+print("Train 정확도 : {}, Test 정확도 : {}".format(accuracy_score(y_train, pred_train), accuracy_score(y_test, pred_test)))
+-> max_depth: 1
+    Train 정확도 : 0.9765258215962441, Test 정확도 : 0.916083916083916
+
+
+# 정확도 : max_depth:None 와 비교해서 일반화(generalization)
+from sklearn.metrics import accuracy_score
+print("max_depth: 3")
+print("Train 정확도 : {}, Test 정확도 : {}".format(accuracy_score(y_train, pred_train), accuracy_score(y_test, pred_test)))
+-> max_depth: 3
+    Train 정확도 : 0.9765258215962441, Test 정확도 : 0.916083916083916
+
+
+# graphbiz
+from sklearn.tree import export_graphviz
+from graphviz import Source
+
+graph = Source(export_graphviz(tree, # 학습한 모델
+                               out_file=None,       # 파일로 그래프를 저장할 경우의 경로지정 - None = 저장하지않겠다.
+                               feature_names=data['feature_names'],     # Feature의 이름을 설정(생략하면 자동으로 index값이 나온다.)
+                               class_names=data['target_names']  ,      # Label의 이름을 설정, Node에 개수가 더 많은 클래스를 표시
+                               rounded=True,
+                               filled=True
+))
+
+data['target_names']
+-> array(['malignant', 'benign'], dtype='<U9')
+
+graph
+# 0으로 딱 떨어지면 더이상 질문을 하지 않아도 된다.
+-> 그림이 나온다.
+
+---------------------------------------------------------------
+
+Decision Tree 복잡도 제어
+        Decision Tree 모델을 복잡하게 하는 것은 노드가 너무 많이 만들어 지는 것이다.
+                노드가 많이 만들어 질수록 훈련데이터셋에 과대적합된다.
+        적절한 시점에 트리 생성을 중단해야 한다.
+
+        과적합관련 하이퍼파라미터
+
+            max_depth: 트리의 최대 깊이
+            max_leaf_nodes : 리프노드 개수
+            min_samples_leaf : leaf 노드가 되기위한 최소 샘플수
+            min_samples_split : 나누는 최소 샘플수
+                하이퍼 파라미터(Hyper Parameter) : 모델의 학습에 영향을 끼치는 파라미터 값으로 모델 생성시 사람이 직접 지정해 줘야하는 값
+                하이퍼 파라미터 튜닝(Hyper Parameter Tunning): 가장 성능 좋은 하이퍼 파라미터를 찾는 것
+                파라미터(Parameter): 머신러닝 모델에서 파라미터는 모델이 학습을 통해서 직접 찾아야 하는 값
+
+
+------------------------------------------------------------
+
+GridSearch (그리드서치)
+
+적당한 max_depth 찾기
+
+DecisionTreeClassifier(max_depth=1, max_leaf_nodes=5, min_samples_leaf=20)
+# 의사결정나무모양을 만드는데, 각각의 조건은 이렇게 만든다.
+
+
+max_depth_candidates = [1,2,3,4,5]   # max_depth 후보
+# 평가결과들을 저장할 리스트
+train_acc_list = []
+test_acc_list = []
+
+for max_depth in max_depth_candidates:
+    tree = DecisionTreeClassifier(max_depth=max_depth, random_state=0)
+    tree.fit(X_train, y_train)
+    
+    pred_train = tree.predict(X_train)
+    pred_test = tree.predict(X_test)
+    
+    train_acc_list.append(accuracy_score(y_train, pred_train))
+    test_acc_list.append(accuracy_score(y_test, pred_test))
+    
+# 각각 max_depth가 1,2,3,4,5 일때의 값들이 차례로 저장되어서 출력된다.
+
+
+import pandas as pd
+acc_df = pd.DataFrame({
+    "Max Depth": max_depth_candidates,
+    "Train acc": train_acc_list,
+    "Test acc": test_acc_list
+})
+
+
+acc_df
+-> 	Max Depth	Train acc	Test acc
+    0	 1	    0.929577	0.888112
+    1	 2	    0.931925	0.888112
+    2	 3	    0.976526	0.916084
+    3	 4	    0.985915	0.909091
+    4	 5	    1.000000	0.902098
 
 
 
+# 선그래프로 변화를 시각화
+
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(8,6))
+plt.plot(max_depth_candidates, train_acc_list, marker='o', label="Train")
+plt.plot(max_depth_candidates, test_acc_list, marker='o', label="Test")
+
+plt.ylabel("accuracy")   # 평가지표(정확도)
+plt.xlabel("max depth - model complexity")   # max dept => decision tree에서 모델의 복잡도
+plt.xticks(range(1,6))
+plt.legend()
+plt.show()
+-> 선그래프가 나타난다.
 
 
 
+Grid Search 를 이용한 하이퍼파라미터 튜닝
+
+        하이퍼 파라미터 (Hyper Parameter)
+                머신러닝 모델을 생성할 때 사용자가 직접 설정하는 값
+                머신러닝 모델에 따라 다르기는 하지만 많은 하이퍼파라미터들을 변경할 수 있다.
+        하이퍼 파라미터 튜닝
+                하이퍼 파라미터의 설정에 따라 모델의 성능이 달라진다.
+
+
+    최적의 하이퍼파라미터 찾기
+        만족할 만한 하이퍼파라미터들의 값의 조합을 찾을 때 까지 일일이 수동으로 조정
+        GridSearch 사용
+            GridSearchCV()
+                시도해볼 하이퍼파라미터들을 지정하면 모든 조합에 대해 교차검증 후 제일 좋은 성능을 내는 하이퍼파라미터 조합을 찾아준다.
+                적은 수의 조합의 경우는 괜찮지만 시도할 하이퍼파라미터와 값들이 많아지면 너무 많은 시간이 걸린다.
+        Random Search 사용
+            RandomizedSearchCV()
+                GridSeach와 동일한 방식으로 사용한다.
+                모든 조합을 다 시도하지 않고 각 반복마다 임의의 값만 대입해 지정한 횟수만큼만 평가한다.
+
+
+    GridSearchCV
+        주요 매개변수
+            estimator: 모델객체 지정
+            params : 하이퍼파라미터 목록을 dictionary로 전달 '파라미터명':[파라미터값 list] 형식
+            scoring: 평가 지표
+                평가지표문자열: https://scikit-learn.org/stable/modules/model_evaluation.html
+                여러개일 경우 List로 묶어서 지정
+            cv : 교차검증시 fold 개수.
+            n_jobs : 사용할 CPU 코어 개수 (None:1(기본값), -1: 모든 코어 다 사용)
+    메소드
+        fit(X, y) : 학습
+        predict(X): 제일 좋은 성능을 낸 모델로 predict()
+        predict_proba(X): 제일 좋은 성능을 낸 모델로 predict_proba() 호출
+    결과 조회 속성
+        cv_results_ : 파라미터 조합별 결과 조회
+        best_params_ : 가장 좋은 성능을 낸 parameter 조합 조회
+        best_estimator_ : 가장 좋은 성능을 낸 모델 반환
+        best_score_: 가장 좋은 점수 반환
 
 
 
+from sklearn.model_selection import GridSearchCV
+from sklearn.tree import DecisionTreeClassifier
 
+DecisionTreeClassifier?
+# DecisionTreeClassifier 속성들이 쭉 나온다.
 
+-----
+# 모델
+tree = DecisionTreeClassifier(random_state=0)
+# 하이퍼 파라미터 후보 - 딕셔너리 (key: 하이퍼파라미터(str), value: 리스트(후보 파라미터 값들))
+param = {
+    "max_depth": [None, 1, 2, 3, 4, 5],
+    "max_leaf_nodes": [3, 5, 7, 9]   # range형식으로 지정해도 상관없다. 예) range(3,10,2)
+}
+# 지정하지 않은 나머지것들은 기본값으로 설정된다.
 
+# GridSearchCV 생성
+gs = GridSearchCV(tree,   # GridSearch를 적용할 모델
+                 param,   # 하이퍼파라미터 후보 딕셔너리
+                 scoring='accuracy',   # 평가지표
+                 cv=3,   # cross validation 실행시 몇개 fold로 나눌지 설정
+                 n_jobs=-1
+                 )
 
+# 조합개수 : 6(max_depth 수) X 4(max_leaf_nodes 수) X 3(cv 수) = 72
 
+-----
 
+# search 실행
+gs.fit(X_train, y_train)
+# 72가지의 학습을 실행한 것
+-> GridSearchCV(cv=3, estimator=DecisionTreeClassifier(random_state=0), n_jobs=-1,
+             param_grid={'max_depth': [None, 1, 2, 3, 4, 5],
+                         'max_leaf_nodes': [3, 5, 7, 9]},
+             scoring='accuracy')
+             
+-----
 
+# 모든 경우별 결과 확인
+gs.cv_results_   # 딕셔너리
+-> # 모든것이 다 나오지만 보기는 힘드므로 DataFrame형식으로 바꿔보자
 
+-----
 
+result_df = pd.DataFrame(gs.cv_results_)
+result_df
+# rank_test_score 가 순위이다. 중요한 값
+-> 리스트형식으로 쭉 나온다.
 
+-----
 
+result_df[result_df.columns[6:]].sort_values('rank_test_score')
+# 중요시 봐야할 값들만 보고싶어서 필터를 적용했다.  params	split0_test_score	split1_test_score	split2_test_score	mean_test_score	std_test_score	rank_test_score 이 7개만 나타난다.
 
+-----
 
+# 가장 좋은 평가 점수 뽑는 것
+gs.best_score_
+-> 0.9178403755868545, # 위에 리스트에서 가장 좋은 값이 출력된다.
 
+-----
 
+# best param (가장 점수 좋은 파라미터 조합)
+gs.best_params_
+-> {'max_depth': None, 'max_leaf_nodes': 5},   
 
+-----
 
+# best 모델 조회
+best_model = gs.best_estimator_
+best_model
+-> DecisionTreeClassifier(max_leaf_nodes=5, random_state=0)
 
+-----
 
+accuracy_score(y_test, best_model.predict(X_test))
+-> 0.916083916083916
 
+----- 
+# Scoring에 추가해서 알아보자.
+
+# 모델
+tree = DecisionTreeClassifier(random_state=0)
+# 하이퍼 파라미터 후보 - 딕셔너리 (key: 하이퍼파라미터(str), value: 리스트(후보 파라미터 값들))
+param = {
+    "max_depth": [None, 1, 2, 3, 4, 5],
+    "max_leaf_nodes": [3, 5, 7, 9]   # range형식으로 지정해도 상관없다. 예) range(3,10,2)
+}
+# 지정하지 않은 나머지것들은 기본값으로 설정된다.
+
+# GridSearchCV 생성
+gs = GridSearchCV(tree,   # GridSearch를 적용할 모델
+                 param,   # 하이퍼파라미터 후보 딕셔너리
+                 scoring=['accuracy', 'recall', 'precision'],   # 여러개 평가지표
+                 refit='accuracy',   # 여러개 평가지표를 지정할경우 최종 rank를 선택할 때 사용할 평가지표지정. (선택한 지표가 1위인 파라미터로 모델 재학습시킨다.)
+                 cv=3,   # cross validation 실행시 몇개 fold로 나눌지 설정
+                 n_jobs=-1   # CPU 몇개 이용해서 할건지 정하는 것. -1 은 가용할수있는 최대로 사용하라는 의미이므로 보통 -1을 입력한다.
+                 )
+
+# 조합개수 : 6(max_depth 수) X 4(max_leaf_nodes 수) X 3(cv 수) = 72
+
+-----
+
+gs.fit(X_train, y_train)
+-> GridSearchCV(cv=3, estimator=DecisionTreeClassifier(random_state=0), n_jobs=-1,
+             param_grid={'max_depth': [None, 1, 2, 3, 4, 5],
+                         'max_leaf_nodes': [3, 5, 7, 9]},
+             refit='accuracy', scoring=['accuracy', 'recall', 'precision'])
+
+-----
+
+result_df2 = pd.DataFrame(gs.cv_results_)
+result_df2.columns
+# 첫 4개는 걸린 시간 의미 - 'mean_fit_time', 'std_fit_time', 'mean_score_time', 'std_score_time'
+
+-> Index(['mean_fit_time', 'std_fit_time', 'mean_score_time', 'std_score_time',
+       'param_max_depth', 'param_max_leaf_nodes', 'params',
+       'split0_test_accuracy', 'split1_test_accuracy', 'split2_test_accuracy',
+       'mean_test_accuracy', 'std_test_accuracy', 'rank_test_accuracy',
+       'split0_test_recall', 'split1_test_recall', 'split2_test_recall',
+       'mean_test_recall', 'std_test_recall', 'rank_test_recall',
+       'split0_test_precision', 'split1_test_precision',
+       'split2_test_precision', 'mean_test_precision', 'std_test_precision',
+       'rank_test_precision'],
+      dtype='object')
+
+-----
+
+result_df2[result_df2.columns[6:]].sort_values('rank_test_accuracy')  # 6번쨰 컬럼부터 보겠다.
+
+-----
 
 
 
