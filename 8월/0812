@@ -1,0 +1,256 @@
+
+
+RandomizedSearchCV
+    주요 매개변수
+        estimator: 모델객체 지정
+        param_distributions : 하이퍼파라미터 목록을 dictionary로 전달 '파라미터명':[파라미터값 list] 형식
+        n_iter : 파라미터 검색 횟수
+        scoring: 평가 지표
+        cv : 교차검증시 fold 개수.
+        n_jobs : 사용할 CPU 코어 개수 (None:1(기본값), -1: 모든 코어 다 사용)
+    메소드
+        fit(X, y) : 학습
+        predict(X): 제일 좋은 성능을 낸 모델로 predict()
+        predict_proba(X): 제일 좋은 성능을 낸 모델로 predict_proba() 호출
+    결과 조회수 속성(Attribute)
+        cv_results_ : 파라미터 조합별 결과 조회
+        best_params_ : 가장 좋은 성능을 낸 parameter 조합 조회
+        best_estimator_ : 가장 좋은 성능을 낸 모델 반환
+        best_score_ : 가장 좋은 점수
+
+-----
+
+import numpy as np
+import pandas as pd
+
+from sklearn.datasets import load_iris
+from sklearn.model_selection import RandomizedSearchCV, train_test_split
+from sklearn.tree import DecisionTreeClassifier
+
+X, y = load_iris(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=0)
+
+-----
+
+tree = DecisionTreeClassifier(random_state=0)
+param = {
+    "max_depth": range(1,11),   # 1~10
+    "max_leaf_nodes": range(3,31,3),   # 3,6,9 ... 30
+    "criterion": ["gini", "entropy"]
+}
+print("총 조합수:", 10*10*2)   # 위에 param , 조합수가 200개가 나올것이다.
+
+rs = RandomizedSearchCV(tree,   #모델
+                       param,   # 파라미터 후보
+                       n_iter=50,   # 총 조합 중에 50개를 랜덤하게 선택해서 테스트해라
+                       cv=10,   # cross validation fold의 수
+                       n_jobs=-1
+                       )
+
+-----
+
+# search
+rs.fit(X_train, y_train)
+-> RandomizedSearchCV(cv=10, estimator=DecisionTreeClassifier(random_state=0),
+                   n_iter=50, n_jobs=-1,
+                   param_distributions={'criterion': ['gini', 'entropy'],
+                                        'max_depth': range(1, 11),
+                                        'max_leaf_nodes': range(3, 31, 3)})
+
+-----
+
+# 전체 결과 확인
+result_dict = rs.cv_results_
+result_dict
+-> 모든 값들이 쭉 나온다.
+
+-----
+
+result_df = pd.DataFrame(result_dict)
+result_df.shape
+-> (50, 21)
+
+-----
+
+rs.best_score_
+-> 0.9386363636363637
+
+rs.best_params_
+-> {'max_leaf_nodes': 6, 'max_depth': 5, 'criterion': 'gini'}
+
+best_model = rs.best_estimator_
+best_model
+# 학습이 끝난 모델이다.
+-> DecisionTreeClassifier(max_depth=5, max_leaf_nodes=6, random_state=0)
+
+# test set 평가
+from sklearn.metrics import accuracy_score
+acc = accuracy_score(y_test, best_model.predict(X_test))
+acc
+-> 0.9736842105263158
+
+accuracy_score(y_test, rs.predict(X_test))
+-> 0.9736842105263158
+
+-----
+
+파이프라인 (Pipeline)
+
+        여러 단계의 머신러닝 프로세스 (전처리의 각 단계, 모델생성, 학습) 처리 과정을 설정하여 한번에 처리되도록 한다.
+    파이프라인은 여러개의 변환기와 마지막에 변환기 또는 추정기를 넣을 수 있다. (추정기-Estimator는 마지막에 만 올 수 있다.)
+    전처리 작업 파이프라인
+        변환기들로만 구성
+    전체 프로세스 파이프 라인
+        마지막에 추정기를 넣는다
+        
+Pipeline 생성
+    (이름, 변환기) 를 리스트로 묶어서 전달한다.
+    마지막에는 추정기가 올 수있다.
+    
+Pipeline 을 이용한 학습
+    pipeline.fit()
+        각 순서대로 각 변환기의 fit_transform()이 실행되고 결과가 다음 단계로 전달된다. 마지막 단계에서는 fit()만 호출한다.
+        보통 마지막이 추정기일때 사용
+    pipeline.fit_transform()
+        fit()과 동일하나 마지막 단계에서도 fit_transform()이 실행된다.
+        보통 전처리 작업 파이프라인(모든 단계가 변환기)일 때 사용
+    마지막이 추정기(모델) 일 경우
+        predict(X), predict_proba(X)
+        추정기를 이용해서 X에 대한 결과를 추론
+        모델 앞에 있는 변환기들을 이용해서 transform() 그 처리결과를 다음 단계로 전달
+
+-----
+
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+
+from sklearn.pipeline import Pipeline
+
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, stratify=y, random_state=0)
+
+-----
+
+# 학습 : Feature  전처리(StandardScaler) -> 모델학습(SVC)
+# 추론 : Feature  전처리(StandardScaler) -> 추론(predict-SVC)
+# Pipeline에 넣어줄 변환기와 추정기(모델)들을 순서에 맞춰서 List에 담아준다.
+
+order = [
+    ("scaler", StandardScaler()),  # (이름, 객체)
+    ("svc", SVC())
+]
+pipeline = Pipeline(order, verbose=True)   # verbose: 학습/추론할 때 로그를 출력
+
+-----
+
+# 학습 (마지막이 추정기일 경우 -> fit(X,y), 모두 변환기일 경우 -> fit_transform(X))
+pipeline.fit(X_train, y_train)
+->  [Pipeline] ............ (step 1 of 2) Processing scaler, total=   0.0s
+    [Pipeline] ............... (step 2 of 2) Processing svc, total=   0.0s
+    Pipeline(steps=[('scaler', StandardScaler()), ('svc', SVC())], verbose=True)
+
+-----
+
+# 추론
+pred_train = pipeline.predict(X_train)
+pred_test = pipeline.predict(X_test)
+
+-----
+
+accuracy_score(y_train, pred_train), accuracy_score(y_test, pred_test)
+-> (0.9929577464788732, 0.958041958041958)
+
+-----
+
+# 새로운 데이터에 대한 추론
+new_data = X_test[:3]
+new_data.shape
+-> (3, 30)
+
+pipeline.predict(new_data) #transform() -> predict()
+-> array([1, 0, 0])
+
+-----
+
+GridSearch에서 Pipeline 사용
+    하이퍼파라미터 지정시 파이프라인 프로세스이름__하이퍼파라미터 형식으로 지정한다.
+
+# SVC 모델의 최적의 하이파라미터모델(C, gamma) 을 찾고자 한다. -> GridSearch
+# StandardScaler를 이용해서 전처리
+
+from sklearn.model_selection import GridSearchCV
+
+-----
+
+# 1. pipeline 생성
+# 2. GridSearchCV의 estimator에 pipeline 등록
+
+order = [
+    ('scaler', StandardScaler()),
+    ('svc', SVC(random_state=0))
+]
+pipeline = Pipeline(order)
+
+-----
+
+param = {
+    "svc__C":[0.001, 0.01, 0.1, 1, 10],
+    "svc__gamma":[0.001, 0.01, 0.1, 1, 10]
+}
+gs = GridSearchCV(pipeline,
+                 param,
+                 scoring='accuracy',
+                 cv=4,
+                 n_jobs=-1)
+
+gs.fit(X_train, y_train)
+-> GridSearchCV(cv=4,
+             estimator=Pipeline(steps=[('scaler', StandardScaler()),
+                                       ('svc', SVC(random_state=0))]),
+             n_jobs=-1,
+             param_grid={'svc__C': [0.001, 0.01, 0.1, 1, 10],
+                         'svc__gamma': [0.001, 0.01, 0.1, 1, 10]},
+             scoring='accuracy')
+
+gs.best_params_
+-> {'svc__C': 10, 'svc__gamma': 0.01}
+
+gs.best_score_
+-> 0.9812643272791395
+
+gs.cv_results_
+-> 각각의 값이 쭉 나온다.
+
+best_model = gs.best_estimator_
+type(best_model)
+# pipeline이 나온다.
+-> sklearn.pipeline.Pipeline
+
+-----
+
+make_pipeline() 함수를 이용한 파이프라인 생성을 편리하게 하기
+
+
+from sklearn.pipeline import make_pipeline
+
+# make pipeline (변환기객체, 변환기객체, ..., 추정기): Pipeline을 생성해서 변환
+# 프로세스의 이름을 프로세스클래스이름(소문자변환)으로 해서 Pipeline을 생성
+
+pipeline2 = make_pipeline(StandardScaler(), SVC())
+type(pipeline2)
+-> sklearn.pipeline.Pipeline
+
+pipeline2
+-> Pipeline(steps=[('standardscaler', StandardScaler()), ('svc', SVC())])
+
+
+
+
+
+
+
+
+
