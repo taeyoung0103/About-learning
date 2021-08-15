@@ -247,7 +247,7 @@ pipeline2
 -> Pipeline(steps=[('standardscaler', StandardScaler()), ('svc', SVC())])
 
 
-11
+
 
 
 
