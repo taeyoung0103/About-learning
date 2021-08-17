@@ -53,9 +53,33 @@ scaler = MinMaxScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
+# KNN - Feature Scaling 전처리를 해준다.
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
+---------
 
+# KNN 모델을 이용해 train, 평가
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
 
+k_param = range(1, 11)    #1부터 10까지
+train_acc_list = []
+test_acc_list = []
+
+for k in k_param:
+    # 모델생성
+    knn = KNeighborsClassifier(n_neighbors=k)
+    # 학습
+    knn.fit(X_train_scaled, y_train)
+    # 평가
+    pred_train = knn.predict(X_train_scaled)
+    pred_test = knn.predict(X_test_scaled)
+    
+    train_acc_list.append(accuracy_score(y_train, pred_train))
+    test_acc_list.append(accuracy_score(y_test, pred_test))
 
 
 
