@@ -82,6 +82,88 @@ for k in k_param:
     test_acc_list.append(accuracy_score(y_test, pred_test))
 
 
+pd.DataFrame({
+    "K": k_param,
+    "Train": train_acc_list,
+    "Test": test_acc_list
+})
+-> K	Train	Test
+0	1	1.000000	0.944056
+1	2	0.985915	0.937063
+2	3	0.995305	0.944056
+3	4	0.990610	0.951049
+4	5	0.988263	0.951049
+5	6	0.983568	0.958042
+6	7	0.983568	0.958042
+7	8	0.981221	0.958042
+8	9	0.983568	0.951049
+9	10	0.981221	0.951049
+
+----------
+
+import matplotlib.pyplot as plt
+
+print("K값 변화에 따른 정확도 변화")
+plt.figure(figsize=(8,6))
+plt.plot(k_param, train_acc_list, marker='o', label='Train')
+plt.plot(k_param, test_acc_list, marker='v', label='Test')
+
+plt.legend()
+plt.grid(True)
+plt.show()
+
+-> 그래프가 나온다.
+
+----------
+
+# k를 8 해서 모델 생성
+best_model = KNeighborsClassifier(n_neighbors=8)
+best_model.fit(X_train_scaled, y_train)
+
+accuracy_score(y_test, best_model.predict(X_test_scaled))
+
+-> KNeighborsClassifier에 8을 집어넣은 모델을 생성한 후 best_model.fit으로 학습하고 난 후 예측치를 만든다.
+
+----------
+
+GridSearch/Pipeline 을 이용해 구현
+
+# Pipeline (scaler, knn)
+from sklearn.model_selection import GridSearchCV
+from sklearn.pipeline import Pipeline
+
+order = [
+    ('scaler', MinMaxScaler()),
+    ('knn', KNeighborsClassifier())
+]
+pipeline = Pipeline(order, verbose=True)
+
+# GridSearchCV
+param = {
+    "knn__n_neighbors":range(1,11),
+    "knn__p":[1,2]   # 1: 맨하탄거리, 2: 유클리디안거리
+}
+gs = GridSearchCV(pipeline, param, scoring='accuracy', cv=5, n_jobs=-1)
+
+gs.fit(X_train, y_train)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
