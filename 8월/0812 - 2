@@ -147,10 +147,27 @@ gs = GridSearchCV(pipeline, param, scoring='accuracy', cv=5, n_jobs=-1)
 
 gs.fit(X_train, y_train)
 
+->  [Pipeline] ............ (step 1 of 2) Processing scaler, total=   0.0s
+    [Pipeline] ............... (step 2 of 2) Processing knn, total=   0.0s
+    GridSearchCV(cv=5,
+             estimator=Pipeline(steps=[('scaler', MinMaxScaler()),
+                                       ('knn', KNeighborsClassifier())],
+                                verbose=True),
+             n_jobs=-1,
+             param_grid={'knn__n_neighbors': range(1, 11), 'knn__p': [1, 2]},
+             scoring='accuracy')
 
+-------------
 
+result_df = pd.DataFrame(gs.cv_results_)
+result_df[result_df.columns[6:]].sort_values('rank_test_score').head()
 
-
+->                  params                split0_test_score	    split1_test_score    split2_test_score	    split3_test_score   	split4_test_score	 mean_test_score	std_test_score	rank_test_score
+4	 {'knn__n_neighbors': 3, 'knn__p': 1}	  0.953488	            0.988235	        0.988235	          0.988235	             1.000000	            0.983639	        0.015749	    1
+13	 {'knn__n_neighbors': 7, 'knn__p': 2}	  0.941860	            0.988235	        0.976471	          1.000000	             0.988235	            0.978960	        0.019987	    2
+6	 {'knn__n_neighbors': 4, 'knn__p': 1}     0.953488	            0.988235	        0.988235	          1.000000	             0.964706	            0.978933	        0.017127	    3
+12	 {'knn__n_neighbors': 7, 'knn__p': 1}	  0.930233	            0.988235	        0.988235	          0.988235	             0.988235	            0.976635	        0.023201	    4
+15	 {'knn__n_neighbors': 8, 'knn__p': 2}	  0.953488	            0.976471	        0.976471	          1.000000	             0.976471	            0.976580	        0.014709	    5
 
 
 
