@@ -1,0 +1,49 @@
+
+
+ Image는 width X height X channel 의 pixels로 이루어진 matrix
+width: 너비로 이미지의 가로 길이를 의미한다.
+
+height: 높이로 이미지의 세로 길이를 의미한다.
+
+pixel: image가 가지고 있는 값으로 width X height 개수만큼 존재한다. image를 표현하는 bit방식에 따라 값의 범위가 달라진다.
+
+일반적인 Image는 unsigned integer 8bit로 표현
+
+0 ~ 255 로 표현
+bit수가 높아질 수록 표현할 수 있는 색의 범위가 증가한다.
+
+
+Open CV 개요
+
+Open Source Computer Vision Library로 실시간 computer vision을 목적으로 개발됨
+Intel에서 개발하다가 open source화 됨
+Cross Platform이기 때문에 Windows, Mac, Linux, OS에 상관없이 동작 가능
+C/C++로 개발 되었으나 Python, JAVA, MATLAB의 개발 환경도 지원한다.
+실시간에 초점을 맞추고 나온 library이기 때문에 mobile camera나 로봇 등에 recognition module로 붙여 영상처리에 활용된다.
+
+
+OpenCV 설치
+
+!pip install opencv-contrib-python
+
+-----
+
+이미지 읽기
+imread(filename [, flag]) : ndarray
+
+이미지를 읽는다.
+
+filename: 읽어들일 이미지 파일경로
+
+flag: 읽기 모드
+
+cv2.IMREAD_XXXXX 상수를 이용한다.
+IMREAD_COLOR가 기본(BGR 모드)
+matplotlib에서 출력시 rgb 모드로 변환해야 한다.
+
+
+
+
+
+
+
