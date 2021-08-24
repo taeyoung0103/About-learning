@@ -41,6 +41,41 @@ cv2.IMREAD_XXXXX 상수를 이용한다.
 IMREAD_COLOR가 기본(BGR 모드)
 matplotlib에서 출력시 rgb 모드로 변환해야 한다.
 
+----------
+
+matplotlib 으로 출력
+
+jupyter notebook 내에 출력이 가능
+
+lenna = cv2.imread("images/Lenna.png") #이미지를 ndarray로 읽어들인다.
+# BGR 모드 (Blue, Green, Red)
+
+print(type(lenna))
+print(lenna.shape) #(height, width, channel)
+-> <class 'numpy.ndarray'>
+  (512, 512, 3)
+
+---
+
+cv2.imshow("frame", lenna)
+cv2.waitKey(0) # 키보드의 키를 누를때 까지 기다리면서 이미지를 띄운다. waitKey(밀리초): 밀리초-입력을 기다리는 시간 (1 밀리초 - 1/1000초), 0: 계속 기다린다.
+cv2.destroyAllWindows() # 이미지를 띄운 윈도우들을 종료시킨다.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
