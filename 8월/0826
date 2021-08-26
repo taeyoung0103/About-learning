@@ -50,9 +50,45 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
+-------------------------------------
 
+import matplotlib as mpl
 
+mpl.rcParams['font.family'] = 'malgun gothic'
+mpl.rcParams['axes.unicode_minus'] = False
+mpl.rcParams['axes.titlesize'] = 25
 
+----------------------------------------------
+
+img = np.full((400,400,3), fill_value=255, dtype='uint8')   # 모든 pixel 값이 255인 이미지
+
+# 도형함수 매개변수: (대상이미지, 그릴위치, 스타일)
+# 직선
+cv2.line(img, (50,50), (200,50), (255,0,0), 5)   # 이미지, 시작점좌표(x,y), 끝점 좌표, 선색(b, g, r), 선두깨
+cv2.line(img, (50,50), (150,160), (0,0,128), lineType=cv2.LINE_AA)   # 대각선을 그릴 때에는 LINE_AA로 지정
+
+-> 선 길이가 x축 150, 선색 (255,0,0), 선두깨 5 가 출력된다.
+
+# 사각형
+cv2.rectangle(img, (70,220), (180, 280), (0,255,0), 2)   # (이미지, 좌상단 좌표(x,y), 우하단좌표, 선색, 선두깨)
+cv2.rectangle(img, (50, 200, 150, 100), (255, 0, 255), 1)   # (이미지, (좌상단 좌표 x, y, width, height), 선색, 선두깨)
+
+# 원
+cv2.circle(img, (300,100), 30, (0,0,255), -1, cv2.LINE_AA)   # (이미지, center좌표(x,y), 반지름, 색, 두깨, 라인스타일) 두깨=-1 : 채움
+cv2.circle(img, (300,100), 60, (255,0,0), 2, cv2.LINE_AA)   
+
+# 다각형
+pts = np.array([[250,200], [300,200], [350,300], [250,300]])
+cv2.polylines(img, [pts], True, (128,0,30), 1)   # (이미지, 포인트들의 좌표(2차원), 폐곡점여부(첫번째와 마지막좌표 연결여부), 선색, 선두깨, 라인스타일)
+
+# 텍스트
+# (이미지, text, text의 좌하단이 위치할 좌표, 폰트, 폰트크기, 글색, 선두깨, 라인스타일) 폰트: cv2.Font_XXX
+cv2.putText(img, "Open CV", (50, 350), cv2.FONT_HERSHEY_SIMPLEX, 2, (100, 50, 150), 1, cv2.LINE_AA)
+
+cv2.imshow('img', img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+-> 출력된 창을 꺼야 다음 진행 가능
 
 
 
