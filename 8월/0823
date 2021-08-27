@@ -61,18 +61,73 @@ cv2.imshow("frame", lenna)
 cv2.waitKey(0) # 키보드의 키를 누를때 까지 기다리면서 이미지를 띄운다. waitKey(밀리초): 밀리초-입력을 기다리는 시간 (1 밀리초 - 1/1000초), 0: 계속 기다린다.
 cv2.destroyAllWindows() # 이미지를 띄운 윈도우들을 종료시킨다.
 
+---------------------------
+
+%matplotlib inline
+-> %matplotlib inline 의 역할은 notebook을 실행한 브라우저에서 바로 그림을 볼 수 있게 해주는 것
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(10,10))
+plt.imshow(lenna)
+plt.show()
+
+-> 사진이 출력된다 , 10,10 사이즈로
+
+----------
+
+a = np.array([1,2,3])
+a[::-1]
+-> array([3, 2, 1]) 가 출력된다. 즉 [::-1]은 좌우로 뒤집는다는 것.
+
+--------------
+
+import matplotlib.pyplot as plt
+plt.figure(figsize=(10,10))
+plt.imshow(lenna[:-1]) #Blue<->Red
+-> 여기서 [:-1]은 원래 그림을 출력한다.
+-> [::-1]은 상하가 뒤집힌채로 출력된다.
+-> [:, ::-1]은 좌우가 뒤집힌채로 출력된다.
+-> [:, :, ::-1]은 색이 바뀐채로 출력된다. [255, 0, 0] 이 [0, 0, 255] 로 바뀐다.
+
+plt.show()
+(512, 512, 3)
+
+--------------------------
+
+cv2.cvtColor(src, code)
+image 의 color space를 변환한다.
+src: 변환시킬 이미지 (ndarray)
+code
+변환시킬 색공간 타입 지정
+cv2.COLOR_XXX2YYY 형태의 상수 지정(XXX를YYY로 변환)
+cv2.COLOR_XXX2YYY 형태의 상수 지정(XXX를YYY로 변환)
+cv2.COLOR_BGR2GRAY / cv2.COLOR_GRAY2BGR (BGR <-> GRAY)
+cv2.COLOR_BGR2RGB / cv2.COLOR_RGB2BGR (BGR <-> RGB)
+cv2.COLOR_BGR2HSV / cv2.COLOR_HSV2BGR (BGR <-> HSV)
 
 
+HSV  
+
+Hue: 색상, 색의 종류
+Saturation: 채도. 색의 선명도
+Value : 명도. 밝기
+
+--------------------------------
+
+lenna_rgb = cv2.cvtColor(lenna, cv2.COLOR_BGR2RGB) #BGR->RGB
+-> 파랑색과 붉은색이 변경
+plt.imshow(lenna_rgb)
+plt.show()
+-> 파랑색이었던 사진이 붉은색으로 변해서 출력됨
+
+---------------------------
+
+cv2.imshow("frame", lenna_rgb)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
 
 
-
-
-
-
-
-
-
-
+aa
 
 
 
