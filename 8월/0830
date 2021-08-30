@@ -1,0 +1,27 @@
+
+
+# tf2라는 이름의 가상환경을 만드는데, python버젼이 3.8인 가상환경을 만든다
+conda create -n tf2 python=3.8
+
+# 가상환경 tf2를 실행한다.
+conda activate tf2(가상환경 파일명)
+
+# tensorflow 버젼을 확인할수있다.
+pip show tensorflow
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
