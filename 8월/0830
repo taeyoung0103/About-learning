@@ -9,10 +9,81 @@ conda activate tf2(가상환경 파일명)
 # tensorflow 버젼을 확인할수있다.
 pip show tensorflow
 
+# 이후 cd 파일명 으로 이동한 후 jupyter notebook을 실행하면 된다.
+
+------------------------
+
+Keras를 사용한 개발 과정
+입력 텐서(X)와 출력 텐서(y)로 이뤄진 훈련 데이터를 정의
+
+입력과 출력을 연결하는 Layer(층)으로 이뤄진 네트워크(모델)을 정의
+
+Sequential 방식: 순서대로 쌓아올린 네트워크로 이뤄진 모델을 생성하는 방식
+Functional API 방식: 다양한 구조의 네트워크로 이뤄진 모델을 생성하는 방식
+Subclass 방식: 네트워크를 정의하는 클래스를 구현.
+모델 컴파일
+
+모델이 Train(학습)할때 사용할 손실함수(Loss Function), 최적화기법(Optimizer), 학습과정을 모니터링할 평가지표(Metrics)를 설정
+Training(훈련)
+
+모델의 fit() 메소드에 훈련데이터(X,y)를 넣어 Train
+
+------------------------
+
+MNIST 이미지 분류
+
+MNIST(Modified National Institute of Standards and Technology) database
+흑백 손글씨 숫자 0-9까지 10개의 범주로 구분해놓은 데이터셋
+하나의 이미지는 28 * 28 pixel 의 크기
+6만개의 Train 이미지와 1만개의 Test 이미지로 구성됨.
+
+import tensorflow as tf
+from tensorflow import keras
+# from tensorflow import keras를 함으로써  예) tf.keras.__version__ 을 keras.__version와 같이 줄여서 할수 있다.
+
+----------------------
+
+# MNIST Dataset 을 Loading - keras의 toy dataset으로 제공
+# (train data) 와 (test data)
+(train_image, train_label), (test_image, test_label) = keras.datasets.mnist.load_data()
+
+-----------------------------
+
+print(train_image.shape, train_label.shape)
+# train_image: (이미지개수, height, width)
+# train_label: (정답개수, ) 
+-> (60000, 28, 28) (60000,)
+
+print(test_image.shape, test_label.shape)
+-> (10000, 28, 28) (10000,)
+
+---------------
+
+# 10개 table 이미지를 확인
+import matplotlib.pyplot as plt
+plt.figure(figsize=(15,5))
+for idx in range(10):
+    plt.subplot(1,10,idx+1)
+    plt.imshow(train_image[idx], cmap='gray')
+    plt.title(f"Label: {train_label[idx]}", fontsize=20)
+    plt.axis('off')
+    
+plt.tight_layout()
+plt.show()
+-> train set에서 1부터 10까지 10개의 라벨이 쭉 나온다.
 
 
-
-
+# 10개 test 이미지를 확인
+import matplotlib.pyplot as plt
+plt.figure(figsize=(15,5))
+for idx in range(10):
+    plt.subplot(1,10,idx+1)
+    plt.imshow(test_image[idx], cmap='gray')
+    plt.title(f"Label: {test_label[idx]}", fontsize=20)
+    plt.axis('off')
+    
+plt.tight_layout()
+plt.show()
 
 
 
