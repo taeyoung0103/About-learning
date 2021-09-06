@@ -140,6 +140,100 @@ _________________________________________________________________
 -------------------------------------
 
 
+컴파일 단계
+    구축된 모델에 학습을 위한 추가 설정
+    손실함수
+    Optimizer(최적화 함수)
+    평가지표
+    
+model.compile(optimizer="adam",                 # 최적화함수-모델의 파라미터(weight)들을 업데이트
+             loss="categorical_crossentropy",   # Loss(손실,오차)를 계산하는 함수설정. categorical_crossentropy = 다중분류의 손실함수
+             metrics=['accuracy']
+             )
+
+# 설정하는것
+
+------------------------------------------
+
+데이터 준비
+    X (Input Data Image)
+        0 ~ 1 사이의 값으로 정규화 시킨다.
+    y (Output Data)
+        one hot encoding 처리
+            Label이 다중분류일 경우 One Hot Encoding 한다.
+        tensorflow.keras 의 to_categorical() 함수 이용
+
+
+np.min(train_image), np.max(train_image), train_image.dtype
+-> (0, 255, dtype('uint8'))
+
+X_train = (train_image/255.0).astype(np.float32)
+-> X학습 설정, 이미지값은 0부터 255인데, 0~1사이의 값으로 만들어야하니까 255.0으로 나눈다.
+
+X_test = (test_image/255.0).astype(np.float32)
+-> X시험 설정
+
+np.min(X_train), np.max(X_train), X_train.dtype
+-> (0.0, 1.0, dtype('float32'))    - 역시 최소값은 0, 최대값은 1, 타입은 float32로 변했음을 확인할 수 있다.
+
+train_label, np.unique(train_label)
+-> (array([5, 0, 4, ..., 5, 6, 8], dtype=uint8),        - train_label 값들이 쭉나온다.
+ array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], dtype=uint8))       - np.unique 즉 고유값들만 나오게하는 함수를 사용했으므로, 고유값들인 0부터 9까지의 수가 나온다.
+ 
+ train_label[:5]
+ -> array([5, 0, 4, 1, 9], dtype=uint8)              -  train_label의 처음 5개가 (5, 0, 4, 1, 9) 이고, 타입은 unit8이다.
+ 
+ 
+ 
+ # Label onehot encoding
+y_train = keras.utils.to_categorical(train_label)
+y_test = keras.utils.to_categorical(test_label)
+-> y값의 train과 test, 학습과 시험 설정
+
+
+print(y_train.shape, train_label.shape)
+y_train[:5]
+
+# 0  1  2  3  4  5  6  7  8  9  의 순서에서 첫번째 줄 5에 위치한 것을 1로, 2번째 줄에 0에 위치한 것을 1로, 
+# 3번쨰 줄에 4에 위치한 것을 1로, 4번째 줄에 1에 위치한 것을 1로, 5번째 줄에 9에 위치한 것을 1로 바꾼다.
+
+-> (60000, 10) (60000,)     
+-> array([[0., 0., 0., 0., 0., 1., 0., 0., 0., 0.],
+       [1., 0., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 1., 0., 0., 0., 0., 0.],
+       [0., 1., 0., 0., 0., 0., 0., 0., 0., 0.],
+       [0., 0., 0., 0., 0., 0., 0., 0., 0., 1.]], dtype=float32)
+       
+- 처음 5개가 5,0,4,1,9 였는데, 원핫인코딩으로 바꾼것을 봐도 첫번째줄은 5에 1, 두번째줄은 0에 1, 이렇게 나타남을 확인할 수 있다.
+
+
+--------------------------------
+
+학습
+
+
+# 1 epoch: train dataset 전체를 한번 학습하는 것
+# 1 step : 파라미터(weight)를 한번 update
+hist = model.fit(X_train, y_train, # train dataset - x, y
+         epochs=10,       # epoch 수 - train dataset을 몇번 학습할지 지정하는것. 여기서는 10번한다는 말 
+         batch_size=100,   # 파라미터(weight - 모델의 학습대상)을 몇개의 데이터마다 업데이트할지 설정. 여기서는 100개씩 나눠서 업데이트
+         validation_split=0.3   # train set의 30%는 검증 데이터셋으로 사용하겠다는 의미이다.
+         )
+
+# 학습데이터 : 60000개, batch_size: 100
+# 1 epoch당 600 step
+# loss = 손실, 오차값 
+# 42000개의 train set과 18000개의 valid set이 있는데, val이 붙은것이 valid set의 결과이다.
+# train set의 결과값들은 실행할수록 loss는 줄어들고, accuracy값은 증가하는반면
+# val는 올라갔다 내려갔다하는것을 볼수있는데, epoch수가 증가할수록 과적합이 일어나며, 어느 지점에 가면 올라갔다 내려갔다하는것을 확인할 수 있다.
+
+
+
+
+
+
+
+
 
 
 
