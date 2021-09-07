@@ -1,0 +1,160 @@
+
+
+회귀 - Boston Housing Dataset
+보스턴 주택가격 dataset은 다음과 같은 속성을 바탕으로 해당 타운 주택 가격의 중앙값을 예측하는 문제.
+
+CRIM: 범죄율
+ZN: 25,000 평방피트당 주거지역 비율
+INDUS: 비소매 상업지구 비율
+CHAS: 찰스강에 인접해 있는지 여부(인접:1, 아니면:0)
+NOX: 일산화질소 농도(단위: 0.1ppm)
+RM: 주택당 방의 수
+AGE: 1940년 이전에 건설된 주택의 비율
+DIS: 5개의 보스턴 직업고용센터와의 거리(가중 평균)
+RAD: 고속도로 접근성
+TAX: 재산세율
+PTRATIO: 학생/교사 비율
+B: 흑인 비율
+LSTAT: 하위 계층 비율
+
+예측해야하는 것
+MEDV: 타운의 주택가격 중앙값(단위: 1,000달러)
+
+------------------------------------------------------
+
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers, models   
+# layers: DeepLearning 모델의 Layer를 정의하는 클래스들을 가진 모듈
+
+# 랜덤값들의 seed값 지정
+np.random.seed(0)
+tf.random.set_seed(0)
+# np.random.seed(0) 난수를 예측 가능하게 만든다.
+
+# 데이터를 로딩
+(train_X, train_y), (test_X, test_y) = keras.datasets.boston_housing.load_data()
+print(train_X.shape, test_X.shape)   ->   (404, 13) (102, 13)
+print(train_y.shape, test_y.shape)   ->   (404,) (102,)
+
+# 하이퍼파라미터, 변수정의
+# 하이퍼파라미터
+LEARNING_RATE = 0.001   # 학습률 지정
+N_EPOCHS = 200   # epoch수  데이터를 몇번쓸지(몇번 반복할지를 정하는 수)
+N_BATCHS = 32    # 배치 사이즈
+
+# 변수
+N_TRAIN = train_X.shape[0]   # train 데이터셋의 데이터개수
+N_TEST = test_X.shape[0]     # test 데이터셋의 데이터개수
+
+
+# X 전처리 - Scaling
+from sklearn.preprocessing import StandardScaler
+-> 평균 0, 분산 1로 조정하는 sklearn의 한 종류이다.
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(train_X)
+X_test = scaler.transform(test_X)
+
+
+# Dataset 구현
+train_dataset = tf.data.Dataset.from_tensor_slices((X_train, train_y)).shuffle(N_TRAIN).batch(N_BATCHS, drop_remainder=True)  
+# shuffle과 batch에 각각 위에서 정의했던 변수값을 넣어야한다.
+# drop_remainder=True 는 만약 3개씩 나눴을떄 나머지(1 혹은 2)가 남아있으면 나머지는 사용하지않겠다는 의미이다.
+test_dataset = tf.data.Dataset.from_tensor_slices((X_test, test_y)).batch(N_BATCHS)
+# 검증할때도 나눠서 하겠다는 말이다.
+
+
+# 모델(네트워크)를 정의하는 함수
+def create_housing_model():
+    # 모델 생성
+    model = keras.Sequential()
+    # model = models.Sequential()  위에거랑 똑같은 의미이다.
+    # 모델에 layer들을 추가
+    #model.add(layers.InputLayer((13,)))   - 1
+    #model.add(layers.Dense(units=32, activation="relu"))   - 2
+    # DenseLayer: units 개수는 2배수를 보통 사용한다.
+    # 1, 2 를 합치면 아래와 같다.
+    model.add(layers.Dense(units=32, activation="relu", input_shape=(13,)))  # 첫번째 hidden layer에 input_shape을 지정할 수 있다.
+    model.add(layers.Dense(units=16, activation="relu"))
+    model.add(layers.Dense(units=8, activation="relu"))    
+    # 출력레이어 : 회귀 - units 수: 1 (추론할 값이 1개), 활성함수는 : None, 없다.
+    model.add(layers.Dence(units=1))
+    
+    return model
+
+
+# 위 함수로 만든 모델 재정의
+model = create_housing_model()
+print(model)
+
+
+# 생성된 네트워크의 구조(summary)를 확인
+model.summary()
+-> 모델의 요약본이 쭉 나온다.
+
+
+# 레이어당 파라미터의 개수
+# 1 노드 : input 속성수 + 1
+# input 속성수 * unit 수 + unit 수 (bias의 개수)
+13 * 32 + 32
+
+
+# 모델구조를 그래프로 확인 -> graphviz가 설치되있어야한다.
+keras.utils.plot_model(model, show_shapes=True, to_file='housing_model.png')
+# to_file은 파일경로(절대적, 상대적)을 지정, 생략 : model.png
+
+
+-------------------------------------------------------
+
+컴파일
+  모델이 학습할 때 필요한 설정을 해주는 작업
+  
+# 회귀 - loss: mean squared error - "mse"
+model.compile(loss='mse',
+             optimizer=keras.optimizers.Adam(learning_rate=LEARNING_RATE))   # optimizer를 문자열 지정: 기본설정을 사용
+
+학습
+# batch_size는  train_dataset 생성시 batch를 지정했기 때문에 학습시에는 지정하지 않는다.
+hist = model.fit(train_dataset,
+                epochs=N_EPOCHS,
+                validation_data=test_dataset)   # Dataset을 이용할 경우 validation_split = 비율   은 사용할 수 없다.
+
+결과 시각화
+
+import matplotlib.pyplot as plt
+
+print(type(hist.history))
+hist.history.keys()
+
+hist.history['loss']
+
+# Loss관련 그래프 출력 함수
+plt.figure(figsize=(8,6))
+plt.plot(range(1,N_EPOCHS+1), hist.history['loss'], label='Train Loss')
+plt.plot(range(1,N_EPOCHS+1), hist.history['val_loss'], label='Validation Loss')
+plt.xlabel("Epochs")
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
+
+
+최종 테스트
+
+loss = model.evaluate(test_dataset)
+print(loss, np.sqrt(loss))
+# np.sqrt는 제곱근이다.
+
+
+추론
+new_data = X_test[:5]
+pred = model.predict(new_data)
+
+
+
+
+
+
+
+
