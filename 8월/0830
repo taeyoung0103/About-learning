@@ -227,7 +227,26 @@ hist = model.fit(X_train, y_train, # train dataset - x, y
 # train set의 결과값들은 실행할수록 loss는 줄어들고, accuracy값은 증가하는반면
 # val는 올라갔다 내려갔다하는것을 볼수있는데, epoch수가 증가할수록 과적합이 일어나며, 어느 지점에 가면 올라갔다 내려갔다하는것을 확인할 수 있다.
 
+----------------------------------------
 
+# train loss와 test loss, train accuracy와 test accuract를 각각 그래프로 표현
+import matplotlib.pyplot as plt
+plt.figure(figsize=(10,20))
+
+plt.subplot(2,1,1)
+plt.plot(range(1,11), hist.history['loss'], label='Train Loss')
+plt.plot(range(1,11), hist.history['val_loss'], label='Validation Loss')
+plt.title("Loss per Epoch", fontsize=20)
+plt.legend()
+
+plt.subplot(2,1,2)
+plt.plot(range(1,11), hist.history['accuracy'], label='Train Accuracy')
+plt.plot(range(1,11), hist.history['val_accuracy'], label='Validation Accuracy')
+plt.title("Accuracy per Epoch", fontsize=20)
+
+plt.legend()
+plt.tight_layout()
+plt.show()
 
 
 
