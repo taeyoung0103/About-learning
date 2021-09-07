@@ -1,0 +1,187 @@
+
+
+tf.data 모듈
+  데이터 입력 파이프라인을 위한 모듈
+  모델 학습/평가을 위한 대용량 데이터셋을 제공(feeding)하기 위한 모듈
+  raw dataset 에서 입력을 위한 전처리, 제공을 위한 배치, shuffling등을 한번에 처리할 수 있게 한다.
+  tf.data.Dataset 추상클래스에서 상속된 여러가지 클래스들을 제공
+  입력 소스의 제공 형태에 따라 다양한 방식을 제공
+
+
+데이터셋 API 사용
+    Dataset 생성
+        raw dataset을 지정
+        from_tensor_slices(), from_generator() 클래스 메소드, tf.data.TFRecordDataset 클래스등를 사용해 메모리나 파일에 있는 데이터를 Dataset으로 만든다.
+        from_tensor_slices(): 리스트 넘파이배열, 텐서플로 자료형에서 데이터를 생성한다.
+    제공 데이터 전처리
+        map(함수) : 하나 하나의 데이터를 변환
+            함수: 값을 변환할 함수로 입력데이터셋의 개수만큼 매개변수 선언
+        filter(함수): 특정 조건의 데이터만 제공하도록 처리.
+            함수: 제공할 값의 조건을 정의한 함수로 입력데이터셋의 개수만큼 매개변수 선언하고 bool 값을 반환.
+    Dataset을 사용해 데이터 제공
+        batch(), shuffle()을 이용해 제공 방식 지정
+            batch(size): 학습/평가시 한번에 제공할 batch size 지정
+                size: int. batch size 지정
+                drop_remainder: bool. True일 경우 마지막 제공시 남은 데이터수가 batch size보다 작으면 제공하지 않는다.
+        shuffle(buffer 크기): dataset의 원소들의 순서를 섞는다.
+            buffer 크기: int. buffer 크기는 섞는 공간의 크기로 데이터보다 크거나 같으면 완전셔플, 적으면 일부만 가져와서 섞어 완전셔플이 안된다.
+            데이터 사이즈가 너무 커서 메모리가 부족할 경우 버퍼크기를 적게 준다.
+            메모리가 충분하다면 데이터의 개수와 동일하게 주면된다.
+        repeat(count): 전체 데이터를 한번 다 제공한 뒤 다시 데이터를 제공한다.
+            count: 몇번 제공할지 반복 횟수
+            shuffle이 적용된 Dataset의 경우 다음 반복 제공마다 shuffle을 진행한다.
+
+Dataset 메소드¶
+    take(개수): 지정한 개수만큼의 데이터만 제공한다.
+
+--------------------------------
+
+dataset = tf.data.Dataset.from_tensor_slices(raw_data)   # 메모리나 파일에 있는 데이터를 Dataset으로 만든다.
+print(type(dataset))
+-> <class 'tensorflow.python.data.ops.dataset_ops.TensorSliceDataset'>
+
+# Dataset으로 부터 값 조회
+# take() 함수사용, 반복문 (Dataset -> Iterable 타입) - 전체조회
+# tensor라는 타입으로 변환 (tensorflow의 배열타입)
+
+for data in dataset:
+    print(data)
+-> tf.Tensor(0, shape=(), dtype=int32)
+tf.Tensor(1, shape=(), dtype=int32)
+tf.Tensor(2, shape=(), dtype=int32)
+tf.Tensor(3, shape=(), dtype=int32)
+tf.Tensor(4, shape=(), dtype=int32)
+tf.Tensor(5, shape=(), dtype=int32)
+tf.Tensor(6, shape=(), dtype=int32)
+tf.Tensor(7, shape=(), dtype=int32)
+tf.Tensor(8, shape=(), dtype=int32)
+tf.Tensor(9, shape=(), dtype=int32)
+
+
+raw_data2 = np.arange(10,20)
+raw_data2
+-> array([10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
+
+
+dataset2 = tf.data.Dataset.from_tensor_slices((raw_data, raw_data2))
+for data in dataset2:
+    print(type(data))
+    print(data)
+    break
+-> tf.data.Dataset.from_tensor_slices 함수는 tf.data.Dataset 를 생성하는 함수로 입력된 텐서로부터 slices를 생성합니다. 
+예를 들어 MNIST의 학습데이터 (60000, 28, 28)가 입력되면, 60000개의 slices로 만들고 각각의 slice는 28×28의 이미지 크기를 갖게 됩니다.
+
+
+# 학습 - model.fit(X, y)
+# raw_data : X_train, raw_data2 : y_train
+dataset2 = tf.data.Dataset.from_tensor_slices((raw_data, raw_data2))
+for X, y in dataset2:
+    print(X, y)
+-> tf.Tensor(0, shape=(), dtype=int32) tf.Tensor(10, shape=(), dtype=int32)
+  tf.Tensor(1, shape=(), dtype=int32) tf.Tensor(11, shape=(), dtype=int32)
+  tf.Tensor(2, shape=(), dtype=int32) tf.Tensor(12, shape=(), dtype=int32)
+  tf.Tensor(3, shape=(), dtype=int32) tf.Tensor(13, shape=(), dtype=int32)
+  tf.Tensor(4, shape=(), dtype=int32) tf.Tensor(14, shape=(), dtype=int32)
+  tf.Tensor(5, shape=(), dtype=int32) tf.Tensor(15, shape=(), dtype=int32)
+  tf.Tensor(6, shape=(), dtype=int32) tf.Tensor(16, shape=(), dtype=int32)
+  tf.Tensor(7, shape=(), dtype=int32) tf.Tensor(17, shape=(), dtype=int32)
+  tf.Tensor(8, shape=(), dtype=int32) tf.Tensor(18, shape=(), dtype=int32)
+  tf.Tensor(9, shape=(), dtype=int32) tf.Tensor(19, shape=(), dtype=int32)
+
+
+print(raw_data)
+print(raw_data2)
+-> [0 1 2 3 4 5 6 7 8 9]
+  [10 11 12 13 14 15 16 17 18 19]
+
+
+# dataset.take(개수): 지정한 개수만큼만 조회
+dataset3 = dataset.take(3)   # dataset으로부터 3개만 가져오겠다.
+for data in dataset3:
+    print(data)
+-> tf.Tensor(0, shape=(), dtype=int32)
+  tf.Tensor(1, shape=(), dtype=int32)
+  tf.Tensor(2, shape=(), dtype=int32)
+
+
+# dataset.shuffle(buffer_size: 정수) : dataset의 원소들을 섞어준다. buffer_size는 메모리가 허용하는 한 raw_data와 같은 개수로 지정
+dataset4 = dataset.shuffle(10)
+print(type(dataset4))
+for data in dataset4:
+    print(data)
+-> 무작위로 섞이며, 예시로 다음과 같이 나온다.
+<class 'tensorflow.python.data.ops.dataset_ops.ShuffleDataset'>
+tf.Tensor(7, shape=(), dtype=int32)
+tf.Tensor(5, shape=(), dtype=int32)
+tf.Tensor(1, shape=(), dtype=int32)
+tf.Tensor(9, shape=(), dtype=int32)
+tf.Tensor(0, shape=(), dtype=int32)
+tf.Tensor(6, shape=(), dtype=int32)
+tf.Tensor(2, shape=(), dtype=int32)
+tf.Tensor(4, shape=(), dtype=int32)
+tf.Tensor(8, shape=(), dtype=int32)
+tf.Tensor(3, shape=(), dtype=int32)
+
+
+# dataset.batch(batch_size): 한번에 제공하는 데이터의 개수
+dataset5 = dataset.batch(3)   # 한번에 3개씩 제공
+for data in dataset5:
+    print(data)
+-> tf.Tensor([0 1 2], shape=(3,), dtype=int32)
+  tf.Tensor([3 4 5], shape=(3,), dtype=int32)
+  tf.Tensor([6 7 8], shape=(3,), dtype=int32)
+  tf.Tensor([9], shape=(1,), dtype=int32)    
+
+
+# 기본 dataset + shuffle + batch
+a = dataset.shuffle(10)
+b = a.batch(3)   # shuffle 한다음 batch를 하겠다.
+for d in b:
+    print(d)
+-> tf.Tensor([3 6 1], shape=(3,), dtype=int32)
+  tf.Tensor([5 4 2], shape=(3,), dtype=int32)
+  tf.Tensor([0 7 9], shape=(3,), dtype=int32)
+  tf.Tensor([8], shape=(1,), dtype=int32)
+
+
+# dataset.repeat(count)  # 전체 데이터셋을 count만큼 반복해서 제공, count 생략하면 무한으로 제공
+dataset7 = dataset.repeat(3)   # 3번 반복해서 제공
+for e in dataset7:
+    print(e)
+-> tf.Tensor(0, shape=(), dtype=int32)
+  tf.Tensor(1, shape=(), dtype=int32)
+  tf.Tensor(2, shape=(), dtype=int32)
+  tf.Tensor(3, shape=(), dtype=int32)
+  tf.Tensor(4, shape=(), dtype=int32)
+  tf.Tensor(5, shape=(), dtype=int32)
+  tf.Tensor(6, shape=(), dtype=int32)
+  tf.Tensor(7, shape=(), dtype=int32)
+  tf.Tensor(8, shape=(), dtype=int32)
+  tf.Tensor(9, shape=(), dtype=int32)
+      이게 dataset7이고, 1세트이다. repeat(3)을 적용했으니 3번반복해서 출력하고 끝난다.
+
+
+# shuffle과 batch와 repeat을 다 합해보자.
+# 여러번 반복해서(repeat) 값을 제공할 경우 반복을 시작할 때마다 shuffle을 한다.
+dataset8 = dataset.shuffle(10).batch(5).repeat(3)
+for data in dataset8:
+    print(data)
+-> 예시)
+tf.Tensor([6 0 3 2 4], shape=(5,), dtype=int32)
+tf.Tensor([9 5 8 7 1], shape=(5,), dtype=int32)
+tf.Tensor([6 5 1 8 3], shape=(5,), dtype=int32)
+tf.Tensor([4 7 2 9 0], shape=(5,), dtype=int32)
+tf.Tensor([0 3 6 2 5], shape=(5,), dtype=int32)
+tf.Tensor([8 9 4 1 7], shape=(5,), dtype=int32)
+
+
+
+
+
+
+
+
+
+
+
+
