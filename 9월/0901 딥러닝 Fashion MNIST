@@ -1,6 +1,69 @@
 
 
-ㅁㅁㅁ
+# 먼저 필요한 것들 import
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+import matplotlib.pyplot as plt
+
+np.random.seed(0)
+tf.random.set_seed(0)
+
+# 데이터셋에 클래스 이름이 들어있지 않기때문에 먼저 class를 지정해주자
+class_names = ['T-shirt/top', 'Trousers', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
+
+
+# data 로딩
+(train_image, train_label), (test_image, test_label) = keras.datasets.fashion_mnist.load_data()
+-> 케라스(Keras)는 파이썬으로 작성된 오픈 소스 신경망 라이브러리이다.
+-> keras.datasets(keras에 기본적으로 있는 데이터들중).fashion_mnist(패션 mnist 데이터 선택).load_data()(를 불러온다.)
+-> 이 데이터를 불러오는데, train와 test 2개로 나눈다.
+
+# 데이터 shape
+print(train_image.shape, test_image.shape)
+print(train_label.shape, test_label.shape)
+-> (60000, 28, 28) (10000, 28, 28)   -- (이미지 개수, 이미지 형태, 이미지 형태)
+-> (60000,) (10000,)   -- 각각 이미지 개수
+
+# test'
+np.unique(test_label, return_counts=True)
+-> np.unique() 함수는 주어진NumPy 배열의 모든 고유 값을 검색하고 이러한 고유 값을 정렬합니다.
+-> (array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], dtype=uint8), -- test_label이 10개인것을 확인할 수 있다.
+->  array([1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000], dtype=int64))  -- 각각 1000개씩 데이터가 들어가있고, 타입은 int64=64비트 정수(그냥 정수라고 생각하면 된다.)
+
+# validata set
+from sklearn.model_selection import train_test_split
+-> 분리하는것을 하게 해주는 split함수
+
+train_image, val_image, train_label, val_label = train_test_split(train_image, train_label, test_size=0.2, stratify=train_label, random_state=0)
+-> train_test_split괄호 안 train_image=data -- 어떤 데이터를 가지고 split을 할것인가
+-> train_test_split괄호 안 train_label -- 어떤 데이터를 target으로 삼을것인가, 여기서 train_label으로 삼은것은 train_label이 이미지이므로 설정
+-> train_test_split괄호 안 test_size  -- test_size의 비율을 정하는 값이며, default(기본)값은 0.25이다. 0.2라고 하면 전체 데이터셋의 20퍼센트를 test셋으로 지정하겠다는 의미이다.
+-> train_test_split괄호 안에 있어야하지만 default값이라 없는 shuffle  -- default값은 shuffle=True이다. split을 하기전에 섞어서 무작위로 만들것인지 여부이다.
+-> train_test_split괄호 안 stratify  -- default=None 입니다. classification을 다룰 때 매우 중요한 옵션값이다. 
+                                  stratify 값을 target으로 지정해주면 각각의 class 비율(ratio)을 train / validation에 유지해 준다. (한 쪽에 쏠려서 분배되는 것을 방지합니다) 
+                                  만약 이 옵션을 지정해 주지 않고 classification 문제를 다룬다면, 성능의 차이가 많이 날 수 있다.
+                                  Stratified sampling은 Random sampling과는 다른 샘플링 방식이다. Stratified sampling는 훈련데이터를 나눌 때 무작위로 샘플링을 하되, 
+                                  original dataset의 클래스 비율이 train, test set에서도 동일하게 유지되는 것을 보장한다는 점이 Random sampling과의 차이점이다. 
+                                  위 CONDITIONS 섹션에서도 말했듯이, 분류문제에서는 이 비율이 유지되는 것이 굉장히 중요한데, 
+                                  original dataset에서 특정 클래스 비율이 불균형한 경우 stratify 매개변수에 타깃 데이터를 지정하여 호출하면 (어떠한 통계적 기법을 통해서) 
+                                  이 비율이 유지될 수 있도록 샘플링한다. 
+-> train_test_split괄호 안 random_state -- 세트를 섞을 때 해당 int 값을 보고 섞으며, 하이퍼 파라미터를 튜닝시 이 값을 고정해두고 튜닝해야 매번 데이터셋이 변경되는 것을 방지할 수 있다.
+                                    train_test_split()는 데이터를 무작위로 섞은 뒤, 데이터 셋을 나눈다. 
+                                    그래서 함수를 호출할 때마다 다른 결과로 분할이 되는데, random_state를 특정 숫자로 지정하면 항상 동일하게 분할할 수 있다. 
+                                    실제 상황에서는 거의 필요 없지만, 다른 사람들과 결과를 공유해야하거나 실험결과를 똑같이 재현해야 할 때는 유용하게 쓰인다.
+
+
+
+ㅁㅁ
+
+
+
+
+
+
+
 
 
 
