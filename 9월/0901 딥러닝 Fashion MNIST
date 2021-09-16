@@ -56,9 +56,9 @@ train_image, val_image, train_label, val_label = train_test_split(train_image, t
 
 
 
-ㅁㅁ
 
 
+aa
 
 
 
