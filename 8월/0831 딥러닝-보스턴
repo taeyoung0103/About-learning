@@ -151,7 +151,7 @@ print(loss, np.sqrt(loss))
 new_data = X_test[:5]
 pred = model.predict(new_data)
 
-
+--------------------------
 
 
 
