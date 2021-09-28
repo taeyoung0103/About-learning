@@ -1,6 +1,6 @@
 초보의 저장공간입니다.
 
-# 6개월간의 모든 학습자료를 저장하는 공간입니다.
+# 21년부터의 모든 학습자료를 저장하는 공간입니다.
 
 # This is a space that stores all the learning for 6 months.
 
