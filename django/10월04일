@@ -1,0 +1,67 @@
+django 순서
+
+cmd 창 접속
+
+conda create -n django python=3.8
+
+conda activate django
+
+conda install django
+
+pip install django
+
+pip install jupyter 
+
+해당폴더로 가서 vsc 실행
+
+위 검색창에서 python select interpreter 입력 - 가상환경이 django인것 선택
+
+터미널 실행 
+
+django-admin startproject config . 실행 - config폴더와 manage.py파일이 생성된다. - 작업은 이 파일들을 사용하면서 이루어진다.
+
+-app 생성
+- python manage.py startapp exam -> exam폴더가 생김
+
+- 설정변경
+- config/setting.py파일에서 변경
+- 생성한 app 등록 - installed_apps에 생성한 app이름을 문자열로 등록 
+(위에서 exam이라는 이름의 app을 만들었으니까 리스트안에 'exam'이렇게 추가)(만들때마다 추가해야함)
+- LANGUAGE_CODE 를 ko-kr로 변경
+- TIME_ZONE을 'Asia/Seoul' 로 변경
+
+- Database에 기본 테이블을 생성
+- python manage.py migrate를 터미널에서 실행
+
+- 관리자 계정 생성
+- python manage.py createsuperuser를 터미널에서 실행 
+- 사용자 이름을 물어본다. : 일단 root로 설정
+- 이메일 주소를 물어본다. : parkty950103@naver.com
+- 비밀번호 설정하라고 물어본다. 설정할떄 입력하는게 안보이므로 조심 : 1111으로 만듬
+- 한번더 물어보는데, 한번더 입력, 비밀번호가 짧으면 너무 짧다고 뭐라하지만 그냥 진행해도 된다.
+
+- 서버 실행
+- python manage.py runserver를 터미널에서 실행
+- 정상적으로 실행되면 'starting development server at http://127.0.0.1:8000/' 이 나올것이다.
+- 저 http주소를 ctrl키를 누르면서 클릭하면 실행된다.
+- 저 주소 뒤에 /admin을 추가하면 관리자 화면으로 이동한다.
+- 로그인페이지에서 전에 설정한 id:root 와 pw:1111 을 입력하면 다음 관리자 화면으로 이동한다.
+- 이 다음 관리자화면은 자동으로 만들어준 화면이다.
+
+- 사용자 추가 및 편집
+- 사용자들 칸 옆에 추가를 누르면 새 아이디와 비밀번호를 생성할수 있다.
+- 임의로 만든 새 아이디:test, 새 비밀번호 : taeyoung95!
+
+- 서버종료
+- 터미널에서 ctrl키와 c를 같이누르면 종료되면서 일반적인 터미널기능으로 돌아올것이다.
+
+- 코드작성
+- config/urls.py 파일 들어가서 - exam에 접근하는 url패턴을 등록
+- exam폴더에 새로 urls.py 파일 생성
+- exam/views.py -> View 코드를 작성
+
+
+- 서버 재실행
+- 마찬가지로 python manage.py runserver
+- 주소 들어가면 not found나오는데 이건 정상이다. 뒤에 /exam/hello1을 붙이고 엔터를 누르면 
+'안녕하세요. 반갑습니다'와 '현재일시 : '가 나온다.
