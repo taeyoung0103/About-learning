@@ -1,3 +1,4 @@
+
 django 순서
 
 cmd 창 접속
@@ -64,4 +65,4 @@ django-admin startproject config . 실행 - config폴더와 manage.py파일이 �
 - 서버 재실행
 - 마찬가지로 python manage.py runserver
 - 주소 들어가면 not found나오는데 이건 정상이다. 뒤에 /exam/hello1을 붙이고 엔터를 누르면 
-'안녕하세요. 반갑습니다'와 '현재일시 : '가 나온다.
+'안녕하세요. 반갑습니다'와 '현재일시 : '가 나온다
