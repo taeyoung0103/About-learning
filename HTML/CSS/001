@@ -1,0 +1,8 @@
+<style>
+  body {
+    background: linear-gradient(0.25turn, #c04d4d, #f3f5f2, #f3f5f2, #c04d4d);
+    background-size: cover;
+  }
+</style>
+
+-- 그라데이션 효과가 25%씩 자연스럽게 된다.
