@@ -1,6 +1,6 @@
 HTML의 기초
 
-<!DOCTYPE html>      -- 웹문서가 어떤 버전의 HTML 언어로 작성되었는지 결정하는 기능
+<!DOCTYPE html>      -- 웹문서가 어떤 버전의 HTML 언어로 작성되었는지 결정하는 기능.
 <html>
 <head>               -- 머리글, 페이지 위부분에 위치한다.
 <title>Page Title</title>
@@ -12,3 +12,4 @@ HTML의 기초
 
 </body>
 </html>
+
