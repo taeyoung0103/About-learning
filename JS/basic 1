@@ -43,7 +43,7 @@ const message = `My name is ${name}`;
 
 console.log(message)
 
-=> ${name}과 같은것을 사용할때는 숫자키 1옆에 ``을 사용하자.
+=> ${name}과 같은것을 사용할때는 숫자키 1옆에 ``을 사용하자..
 
 const name ="Mike";
 const a = "나는 ";
