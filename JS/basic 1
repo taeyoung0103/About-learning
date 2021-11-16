@@ -52,9 +52,13 @@ const b = " 입니다.";
 console.log(a + name + b);
 => 나는 Mike 입니다.     가 출력된다.
 
+const name = prompt("예약일을 입력해주세요", "10-");
+=> prompt 는 알림 창 같은 역할을 하며, "예약일을 입력해주세요"라는 문구와 함께 입력할수있는 칸이 나타난다.
 
 
-
+const isAdult = confirm("당신은 성인입니까?");
+console.log(isAdult)
+=> isAduult를 콘솔실행한다는 의미이며, 알림창에 "당신은 성인입니까?"가 나오며  밑에 확인버튼과 취소버튼이 나온다.
 
 
 
