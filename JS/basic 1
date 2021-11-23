@@ -76,14 +76,39 @@ confirm('구독을 취소 하시겠습니까?');
   각각의 반환값에 따라서 다음으로 진행할 수 있다.
   
   
+---------------------------------
 
+promt => 문자형이다. 그래서 숫자를 입력하더라도 숫자 90이 아니라 문자 "90"이 입력되는것이다.
 
+Boolean() => 괄호안의 것들을 true와 false를 반환하는데, [숫자0, 빈 문자열 "", null, undefined, NaN] 이 false로 반환된다.
+예) console.log(
+      Boolean(1),
+      Boolean("java"),
+      Boolean(0),
+      Boolean(""),
+      Boolean(null),
+      Boolean(undefined),
+      Boolean(NaN)
+      )
+=> true, true, false, false, false, false, false를 반환.
 
+String() => 괄호안의 것들을 문자형으로 반환한다. 
+예) console.log(
+      String(3),
+      String(true),
+      String(null)
+    )
+=> "3", "true", "null"
 
-
-
-
-
-
+Number() => 괄호안의 것들을 숫자형으로 반환한다.
+예) console.log(
+      Number("1234"),
+      Number("12abc"),
+      Number(true),
+      Number(false),
+      Number(null),
+      Number(undefined)
+      )
+=> 1234, NaN, 1, 0, 0, NaN  (true는 1로, false는 0으로, null은 0으로, undefined는 NaN으로 변환)
 
 
