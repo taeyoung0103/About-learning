@@ -18,7 +18,7 @@ let result = ++num;
 console.log(result);
 => 11
 
-** 주의할점
+* 주의할점
 let num =10;
 let result = num++;    => 이렇게 +를 num뒤에 작성하면 적용이 안되 그대로 10이 나온다.
 console.log(result);
