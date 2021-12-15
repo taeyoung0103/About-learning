@@ -37,6 +37,7 @@ console.log(a===b); 의 결과도 false로 나온다.
 console.log(c==b);  =>  true
 console.log(c===b);  =>  true
 
+---------------------------------------------------------
 
 null, undefined, undeclared 차이
 - undefined = 변수가 선언되었으나 아무런 값도 할당되지 않은 상태
