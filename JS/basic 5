@@ -1,0 +1,40 @@
+
+// return으로 값 반환
+function add(num1, num2){
+  return num1 + num2;
+}
+
+const result = add(2,3);
+console.log(result)
+=> 2와 3이 들어가고, 2+3이 행해지므로 5가 출력된다.
+
+
+---------------------------------------------
+
+function showError(){
+  alert('에러가 발생했습니다.');
+}
+const result = showError();
+console.log(result);
+
+=> 실행시 alert가 알림창을 띄우는 함수이므로 '에러가 발생했습니다.'라는 문구를 가진 알림창을 return한다.
+하지만 이 값은 undefined임을 알 수 있다.
+
+----------------------------------------------
+
+함수(function) 
+- showError // 에러를 보여줌
+- getName // 이름을 얻어옴
+- createUserData // 유저데이터 생성
+- checkLogin // 로그인 여부 체크
+
+
+
+
+
+
+
+
+
+
+
