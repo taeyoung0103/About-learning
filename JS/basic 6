@@ -1,0 +1,69 @@
+
+배열은 문자뿐만 아니라, 숫자, 객체, 함수등도 포함할 수 있다.
+
+예)let arr=[
+  'mike',
+  3,
+  false,
+  {
+    name:'Mike',
+    age:30,
+  },
+  function(){
+    console.log('TEST');
+  }
+];
+
+
+length : 배열의 길이를 알수있다.
+예) students.length
+
+push(): 배열 끝에 추가
+예) let days = ['월', '화', '수'];
+days.push('목')
+console.log(days)
+=> ['월', '화', '수', '목']
+
+
+pop(): 배열 끝 요소 제거
+예) let days = ['월', '화', '수'];
+days.pop()
+console.log(days)
+=> ['월', '화']
+
+
+shift, unshift : 배열 맨 앞 제거, 추가
+예) let days = ['월', '화', '수'];
+days.unshift('토', '일');
+console.log(days)
+=> ['토', '일', '월', '화', '수'];
+
+예) let days = ['월', '화', '수'];
+days.shift();
+console.log(days)
+=> ['화', '수'];
+
+
+반복문 : for
+let days = ['월', '화', '수'];
+for(let index = 0; // 배열 첫요소인 0부터 시작하도록한다.
+    index < days.length; // days길이인 3보다 작으면 코드를 실행하고 
+    index++){ // index를 1 추가시킨다.
+      console.log(days[index]) // index는 0에서 2까지 반복한다.
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
