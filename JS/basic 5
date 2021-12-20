@@ -125,6 +125,83 @@ for(x in Mike){
 => Mike와 30 이 출력된다.
 
 
+---------------------------------------------------------
+
+// method
+
+let boy = {
+  name : "Mike",
+  showName : function(){
+    console.log(boy.name)
+  }
+};
+
+boy.showName();
+=> boy함수 안에 showName은 boy.name을 출력하는 함수이므로 boy.showName()을 실행하면 이름인 Mike가 출력된다.
+
+
+------------------------------------------------------------
+
+// method
+
+let boy = {
+  name : "Mike",
+  showName : function(){
+    console.log(boy.name)
+  }
+};
+
+let man = boy;
+=> 객체를 man과 boy 2개 만든것이다.
+man.name = "Tom"
+
+console.log(boy.name)
+=> 이름을 Tom으로 변경했기때문에 Tom이 출력된다.
+
+
+-------------------------------------------------------
+
+let boy = {
+  name : "Mike",
+  showName : function(){
+    console.log(boy.name)
+  }
+};
+
+let man = boy;
+boy = null;
+
+man.showName();
+
+만약 이렇게 boy를 막아버리면 man으로만 접근할수있는데, 
+man.showName();을 실행하면 값이 안나온다. 이유는 boy = null이기 때문이다. 이는 boy의 name과 showname이 다 사라진것을 의미한다.
+
+이럴경우
+
+let boy = {
+  name : "Mike",
+  showName : function(){
+    console.log(this.name)
+  }
+};
+
+let man = boy;
+boy = null;
+
+man.showName();
+
+이렇게 this로 바꾸면 해당객체를 의미하기 때문에 man.showName(); 실행시 정상적으로 Mike가 나온다.
+
+
+
+
+
+
+
+
+
+
+
 
 
 
