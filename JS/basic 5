@@ -29,8 +29,100 @@ console.log(result);
 - checkLogin // 로그인 여부 체크
 
 
+---------------------------------------------------
+
+const superman = {
+  name : 'clark',
+  age : 30,
+}
+
+- 정보를 추가하고싶으면 해당함수뒤에 .이나 []를 사용해서 추가하고 싶은 항목의 이름과 내용을 추가하면 된다.
+- 다만 이 내용은 문장이 계속해서 존재해야한다. 문장을 지우면 다시 없어진다.
+superman.haircolor = 'black';
+superman['hobby'] = 'football';
+console.log(superman)
+
+- 반대로 삭제하고싶으면 추가하는방식 앞에 delete를 붙이면 된다.
+delete superman.age;
+console.log(superman)
 
 
+-----------------------------------------------------
+
+// 객체
+// 함수를 만들어보는데, 이름과 나이를 받아서 객체를 반환하는 함수
+
+function makeobject(name, age){
+  return {
+    name : name,
+    age : age,
+    hobby : 'football'
+  }
+}
+
+const Mike = makeobject('Mike', 30);
+console.log(Mike);
+
+// in을 이용해서 해당 내용이 존재하는지 확인
+console.log('age' in Mike);
+console.log('birthday' in Mike);
+
+
+---------------------------------------------------------
+
+// 위에 in을 이용해서 해당 내용이 존재하는지 확인하는 방법은 사실 잘 안쓰인다. 다른방법을 활용해보자
+// 객체 in
+
+function isadult(user){
+  if(user.age < 20){
+    return false;
+  }
+  return true;
+}
+
+const Mike = {
+  name : 'Mike',
+  age : 30
+};
+
+const Jane = {
+  name : 'Jane'
+};
+
+console.log(isadult(Jane))
+=> 이렇게하면 age를 입력을 안했음에도 true가 나온다. 이유는 user.age가 <20인 경우만 작성해놨기 때문이다.
+
+수정해보자
+
+function isadult(user){
+  if(!('age' in user) || //user에 age가 없거나
+     user.age < 20){ // 20살 미만이면 false를 리턴한다.
+    return false;
+  }
+  return true;
+}
+
+const Jane = {
+  name : 'Jane'
+};
+
+console.log(isadult(Jane))
+=> user에 age가 없기때문에 위 경우와 반대로 false가 출력된다.
+
+
+----------------------------------------------------------------
+
+// 객체 for ... in 
+
+const Mike = {
+  name : "Mike",
+  age : 30
+};
+
+for(x in Mike){
+  console.log(Mike[x])
+} // for문을 돌려서 Mike가 가지고있는 모든 key값들을 뽑아내는 값
+=> Mike와 30 이 출력된다.
 
 
 
