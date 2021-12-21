@@ -1,0 +1,143 @@
+
+변수의 생성과정
+1. 선언단계
+2. 초기화단계
+3. 할당단계
+
+
+var => 선언 및 초기화가 동시에 이루어진다.
+그래서 할당전에 호출하면 undefined가 나온다.
+
+let => 선언단계와 초기화단계가 분리되어서 이루어진다.
+
+const => 선언, 초기화, 할당이 한번에 이루어진다.
+
+
+-------------------------------------------------------
+
+생성자 함수
+(보통 첫글자를 대문자로 만든다)
+예) (이름 값과 나이 값을 필요로 하는 함수이다.)
+function User(name, age){
+  this.name = name;
+  this.age = age;
+}
+
+new연산자를 사용해서 호출한다.
+let user1 = new User('Mike', 30);
+let user2 = new User('Jane', 27);
+let user3 = new User('Tom', 24);
+
+
+-> new 함수를 이용시 실행과정
+먼저 빈 객체를 만든다.
+예) 
+function User(name, age){
+  this = {}  // <- 여기 이렇게 빈 객체를 만든다.
+  this.name = name;
+  this.age = age;       // <- 해당값들이 들어간다.
+  return this;         // <- this 값 다 return한다.
+}
+
+
+------------------------------------------------------
+
+const user = {
+  name : 'Mike',
+  age : 30
+}
+
+object.assign() : 객체 복제
+예) 
+const newUser = Object.assign({}, user);
+=> 빈 객체 {}에 {name: 'Mike', age: 30} 를 더하는 형식이다.
+
+이후에 newUser.name = 'Tom'을 입력해도 
+
+console.log(user.name); 을 실행하면 Mike가 출력된다.
+
+
+---------------------------------------------
+
+object.assign({gender:'male'}, user);
+=> gender: 'male', name: 'Mike', age: 30 이렇게 구성된다.
+
+object.assign({name:'Tom'}, user);
+=> 이렇게 키가 같다면 덮어쓰여지며, 앞 중괄호의 name: 'Tom'이 지워진다.
+
+
+--------------------------------------------------
+
+const user = {
+  name: 'Mike'
+}
+const info1 = {
+  age: 30,
+}
+const info2 = {
+  gender: 'male',
+}
+
+object.assign(user, info1, info2)
+=> user + info1, user + info2가 각각 행해진다.
+
+
+-------------------------------------------------
+
+object.keys() : 키 배열 반환
+
+const user = {
+  name: 'mike',
+  age: 30,
+  gender: 'male',
+}
+
+object.keys(user);
+=> ['name', 'age', 'gender'] 반환
+
+
+-------------------------------------------------
+
+object.values() : 값 배열 반환
+
+const user = {
+  name: 'mike',
+  age: 30,
+  gender: 'male',
+}
+
+object.values(user);
+=> ['mike', 30, 'male'] 반환
+
+
+------------------------------------------------------
+
+object.entries() : 키/값 배열 반환
+
+const user = {
+  name: 'mike',
+  age: 30,
+  gender: 'male',
+}
+
+object.entries(user);
+=> [['name', 'mike'], ['age', 30], ['gender', 'male']] 반환
+
+
+-----------------------------------------------------------
+
+object.fromEntries() : 키/값 배열을 객체로 반환
+
+const arr = [
+  ['name': 'mike'],
+  ['age': 30],
+  ['gender': 'male'],
+];
+
+object.entries(arr);
+=> [['name', 'mike'], ['age', 30], ['gender', 'male']] 반환
+
+
+
+
+
