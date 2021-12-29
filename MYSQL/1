@@ -1,7 +1,7 @@
 
 https://www.youtube.com/watch?v=vgIc4ctNFbc  <- 앞부분 따라서 MYSQL설치
 
-현재 서버에 어떤 DB가 있는지 보기
+현재 서버에 어떤 DB가 있는지 보기.
 - SHOW DATABASES
 -> DB 리스트가 쭉 나온다.
 
